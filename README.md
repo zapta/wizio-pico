@@ -25,7 +25,7 @@
 * Added [PIO-ASM](https://github.com/Wiz-IO/wizio-pico/wiki/PIO-ASM)
 * * Windows
 * * linux_x86_64
-* 
+* * darwin_x86_64
 * _Note: I am in Home-Office, it's hard for me to test hardwares as SPI, I2C ... etc_
 
 ![pico](https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pio-pico.jpg)
