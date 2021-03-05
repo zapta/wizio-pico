@@ -64,12 +64,15 @@ PlatformIO -> Home -> New
 * [READ WIKI - ARDUINO](https://github.com/Wiz-IO/wizio-pico/wiki/ARDUINO)
 
 ## TODO 
-* **Arduino**
+* Arduino
 * * Libraries ... etc
 
-## Thanks to
+## Thanks to:
 * [Ivan Kravets ( PlatformIO )](https://platformio.org/)
+* [Dean Blackketter](https://github.com/blackketter)
 * [Comet Electronics](https://www.comet.bg/en/)
+
+
 
 >If you want to help / support:   
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ESUP9LCZMZTD6)
