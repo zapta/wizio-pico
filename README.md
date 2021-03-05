@@ -17,7 +17,6 @@
 * [Baremetal Examples](https://github.com/Wiz-IO/wizio-pico/tree/main/examples/baremetal)
 * [Arduino Examples](https://github.com/Wiz-IO/wizio-pico/tree/main/examples/arduino)
 * Added some libraries as: 
-* * TinyUSB 
 * * FreeRTOS
 * * FatFS and LFS
 * * jsmn
@@ -26,6 +25,7 @@
 * * Windows
 * * linux_x86_64
 * * darwin_x86_64
+* * 
 
 _Note: I am in Home-Office, it's hard for me to test hardwares as SPI, I2C ... etc_
 
