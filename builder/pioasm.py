@@ -19,9 +19,6 @@ def execute(cmd):
     out, err = proc.communicate()
     lines = out.decode().split("\r\n")
     error = err.decode().split("\r\n")
-    #print ('[PIO-ASM] RES', proc.returncode)
-    #print ('[PIO-ASM] ERR', error)
-    #print ('[PIO-ASM] OUT', lines)
     if proc.returncode == 0: 
         COLOR = Fore.GREEN
     else: 
@@ -37,43 +34,38 @@ def dev_pioasm(env):
     if 'windows' in sys_dir: 
         sys_dir = 'windows'
 
-    #print("SYSTEM", system())
-    #print("MACHINE", machine())
-    #print("SYS DIR", sys_dir)
-
     tool = env.PioPlatform().get_package_dir("tool-wizio-pico")
     if None == tool:
         print( Fore.RED + '[PIO-ASM] ERROR: The', sys_dir, 'is no supported yet...' )
         return
     
-    src_name = env.BoardConfig().get("build.pio_src", "0")
-    dst_name = env.BoardConfig().get("build.pio_dst", "0")
-    if '0' == src_name:
+    names = env.BoardConfig().get("build.pio_src", "0")
+    if '0' == names:
         return
 
-    if '0' == dst_name:
+    for src_name in names.split():
         dst_name = src_name + '.h'
 
-    src = join(env.subst("$PROJECT_DIR"), src_name).replace("\\", "/")
-    dst = join(env.subst("$PROJECT_DIR"), dst_name).replace("\\", "/")
+        src = join(env.subst("$PROJECT_DIR"), src_name).replace("\\", "/")
+        dst = join(env.subst("$PROJECT_DIR"), dst_name).replace("\\", "/")
 
-    if True == os.path.isfile( dst ):
-        print(Fore.GREEN + '[PIO-ASM]', dst)
-        return
+        if True == os.path.isfile( dst ):
+            print(Fore.CYAN + '[PIO-ASM] File (', os.path.basename(dst), ') exist' )
+            continue
 
-    if False == os.path.isfile( src ):
-        print(Fore.RED + '[PIO-ASM] ERROR: Source file not exist ', src, "\n")
-        exit(1)
+        if False == os.path.isfile( src ):
+            print(Fore.RED + '[PIO-ASM] ERROR: Source file not exist ', src, "\n")
+            exit(1)
 
-    if False == os.path.isdir( os.path.dirname( dst )  ):
-        print(Fore.RED + '[PIO-ASM] ERROR: Destination folder not exist', os.path.dirname( dst ), "\n")     
-        exit(1)   
+        if False == os.path.isdir( os.path.dirname( dst )  ):
+            print(Fore.RED + '[PIO-ASM] ERROR: Destination folder not exist', os.path.dirname( dst ), "\n")     
+            exit(1)   
 
-    cmd = []
-    cmd.append(join(tool, sys_dir, 'pioasm') ) 
-    cmd.append(join(env.subst("$PROJECT_DIR"), src))        
-    cmd.append(join(env.subst("$PROJECT_DIR"), dst))  
- 
-    if execute(cmd) != 0:    
-        exit(1) 
+        cmd = []
+        cmd.append(join(tool, sys_dir, 'pioasm') ) 
+        cmd.append(join(env.subst("$PROJECT_DIR"), src))        
+        cmd.append(join(env.subst("$PROJECT_DIR"), dst))  
+    
+        if execute(cmd) != 0:    
+            exit(1) 
 
