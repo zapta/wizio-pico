@@ -8,20 +8,18 @@ from platformio.builder.tools.piolib import PlatformIOLibBuilder
 from common import *
              
 def dev_init(env, platform):
-    env.platform = platform    
+    env.platform = platform   
+    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico") 
     env.libs = libs = []     
-    env.sdk = sdk = env.BoardConfig().get("build.sdk", "SDK")
-    print( "RASPBERRYPI PI PICO RP2040 PICO-%s" % env.sdk )    
+    sdk = dev_sdk(env)    
     dev_compiler(env)
     dev_create_template(env)    
-    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico")
-    optimization_level = env.BoardConfig().get("build.optimization_level", "-Os")
-    add_flags(env, optimization = optimization_level) 
+    add_flags(env) 
     env.Append( 
         CPPDEFINES = [ platform.upper() ],
         CPPPATH    = [ 
             join(env.framework_dir, sdk, "include"), # SDK
-            join(env.framework_dir, sdk, "boards"), # BOARDS
+            join(env.framework_dir, sdk, "boards"),  # BOARDS
         ],       
     )    
 # SDK           
