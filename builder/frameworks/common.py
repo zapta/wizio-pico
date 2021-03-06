@@ -6,6 +6,7 @@ from SCons.Script import DefaultEnvironment, Builder, ARGUMENTS
 import os, json, tempfile, shutil
 from os.path import join, normpath, basename
 from shutil import copyfile
+from colorama import Fore
 from subprocess import check_output, CalledProcessError, call, Popen, PIPE
 from uf2conv import upload_app
 
@@ -47,6 +48,12 @@ def dev_create_template(env):
         if False == os.path.isfile( join(dst, "main.cpp") ): 
             do_copy(src, dst, "main.c" ) 
 
+def dev_sdk(env):
+    env.sdk = env.BoardConfig().get("build.sdk", "SDK110") # get/set default sdk
+    print()
+    print( Fore.BLUE + "%s RASPBERRYPI PI PICO RP2040 ( PICO - %s )" % (env.platform.upper(), env.sdk.upper()) ) 
+    return env.sdk
+
 def dev_compiler(env, application_name = 'APPLICATION'):
     env.Replace(
         BUILD_DIR = env.subst("$BUILD_DIR").replace("\\", "/"),
@@ -75,9 +82,13 @@ def get_nano(env):
         nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]       
     return nano   
 
-def add_flags(env, optimization = '-Os', heap_size = "2048"):
-    print('  OPTIMIZATION:', optimization)     
-    print('  HEAP:', heap_size) 
+def add_flags(env, heap_size = "2048"):
+    optimization = env.BoardConfig().get("build.optimization", "-Os")
+    heap_size = env.BoardConfig().get("build.heap", heap_size) 
+    stack_size = env.BoardConfig().get("build.stack", "2048") 
+    print('  - OPTIMIZATION :', optimization) 
+    print('  - HEAP         :', heap_size) 
+    print('  - STACK        :', stack_size) 
     env.Append(
         ASFLAGS=[ env.cortex, "-x", "assembler-with-cpp" ],
         CPPPATH = [   
@@ -87,7 +98,8 @@ def add_flags(env, optimization = '-Os', heap_size = "2048"):
         ],            
         CPPDEFINES = [ 
             "PICO_ON_DEVICE=1",
-            "PICO_HEAP_SIZE=" + env.BoardConfig().get("build.heap", heap_size),
+            "PICO_HEAP_SIZE=" + heap_size,
+            "PICO_STACK_SIZE=" + stack_size,
             "CFG_TUSB_MCU=OPT_MCU_RP2040"
         ],              
         CFLAGS = [
@@ -164,7 +176,7 @@ def add_flags(env, optimization = '-Os', heap_size = "2048"):
 
 def add_common(env):
     boot = env.BoardConfig().get("build.boot", "w25q080") # get boot
-    print('  BOOT:', boot)  
+    print('  - BOOT         :', boot)  
     env.libs.append( env.BuildLibrary( 
         join("$BUILD_DIR", env.platform, "wizio", "boot2"), 
         join(env.framework_dir, "wizio", "boot2", boot) ) ) 
@@ -225,7 +237,7 @@ def set_bynary_type(env):
     env.address = env.BoardConfig().get("build.address", "empty") # get uf2 start address
     linker = env.BoardConfig().get("build.linker", "empty") # get linker srcipt
     bynary_type = env.BoardConfig().get("build.bynary_type", 'default')
-    print('  BINARY TYPE:', bynary_type)
+    
     if 'copy_to_ram' == bynary_type:
         if "empty" == env.address: env.address = '0x10000000'               
         if "empty" == linker: linker = 'memmap_copy_to_ram.ld'          
@@ -247,8 +259,8 @@ def set_bynary_type(env):
         if "empty" == linker: linker = 'memmap_default.ld'        
         env.Append(
             LDSCRIPT_PATH = join(env.framework_dir, env.sdk, "pico", "pico_standard_link", linker),
-        )        
-    print('  LINKER:', linker)
-    print('  ADDRESS:', env.address)
+        )   
+    print('  - BINARY TYPE  :' , bynary_type, '[', linker, ' ', env.address, ']'  )    
+    print() 
 
 

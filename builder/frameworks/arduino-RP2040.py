@@ -9,14 +9,12 @@ from common import *
 
 def dev_init(env, platform):
     env.platform = platform    
+    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico")    
     env.libs = libs = []     
-    env.sdk = sdk = env.BoardConfig().get("build.sdk", "SDK")
-    print( "RASPBERRYPI PI PICO RP2040 ARDUINO")    
+    sdk = dev_sdk(env)  
     dev_compiler(env, 'ARDUINO')
     dev_create_template(env)
-    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico")
-    optimization_level = env.BoardConfig().get("build.optimization_level", "-Os")
-    add_flags(env, optimization = optimization_level, heap_size='65536') 
+    add_flags(env, heap_size = '65536') 
     core = env.BoardConfig().get("build.core")
     variant= env.BoardConfig().get("build.variant")  
     env.Append(
