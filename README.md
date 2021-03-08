@@ -12,7 +12,7 @@
 * * Windows
 * * linux_x86_64
 * * darwin_x86_64
-* **Libraries** FreeRTOS, FatFS, lfs, jsmn ... etc
+* **Libraries** FreeRTOS, FatFS, littlefs, jsmn ... etc
 * **Systems**
 * * windows, windows_x8, windows_amd64
 * * linux_x86_64, linux_armv6l, linux_armv7l, linux_armv8l
