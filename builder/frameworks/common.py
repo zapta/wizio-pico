@@ -117,6 +117,7 @@ def add_flags(env, heap_size = "2048"):
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",
             "-Wno-unused-value", 
+            #"-Wno-sign-compare",
             "-Wno-discarded-qualifiers",    
             "-mno-unaligned-access",                   
         ],     
@@ -140,6 +141,7 @@ def add_flags(env, heap_size = "2048"):
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",
             "-Wno-unused-value",
+            #"-Wno-sign-compare",
             "-mno-unaligned-access",                                                       
         ],                      
         LINKFLAGS = [ 
