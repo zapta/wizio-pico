@@ -1,4 +1,4 @@
-# Raspberry Pi Pico development platform for PlatformIO
+# Raspberry Pi Pico RP2040 development platform for PlatformIO
 
 **A few words in the beginning**
 * **Version: 1.0.1** The project is a work in progress and is **very beta version** - there may be bugs...
