@@ -9,9 +9,7 @@
 * * Baremetal ( as pico-sdk )
 * * Arduino ( in progress... )
 * [PIO-ASM](https://github.com/Wiz-IO/wizio-pico/wiki/PIO-ASM)
-* * Windows
-* * linux_x86_64
-* * darwin_x86_64
+* * Windows, linux_x86_64, darwin_x86_64
 * **Libraries** FreeRTOS, FatFS, littlefs, jsmn ... etc
 * **Systems**
 * * windows, windows_x8, windows_amd64
@@ -35,7 +33,7 @@ _Note: be sure [**git**](https://git-scm.com/downloads) is installed_
 * INSTALL
 
 ## Uninstall ( fast ) ... Re-Install ( do this and Install again )
-* goto C:\Users\USER_NAME.platformio\platforms 
+* goto C:\Users\USER_NAME\.platformio\ **platforms & packages**
 * delete folder **wizio-pico** ( builders )
 * delete folder **framework-wizio-pico** ( sources )
 * delete folder **tool-wizio-pico** ( tools, picoasm )
