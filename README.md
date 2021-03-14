@@ -24,7 +24,7 @@
 * Please [Re-Install](https://github.com/Wiz-IO/wizio-pico/blob/main/README.md#fast-uninstal--reinstal--do-this-and-install-again) the platform
 * _I am in Home-Office, it's hard for me to test hardwares as SPI, I2C ... etc_
 
-![pico](https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pio-pico.jpg)
+![pico](https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/a1.jpg)
 
 ## Install Platform
 _Note: be sure [**git**](https://git-scm.com/downloads) is installed_
@@ -39,6 +39,7 @@ _Note: be sure [**git**](https://git-scm.com/downloads) is installed_
 * delete folder **tool-wizio-pico** ( tools, picoasm )
 * _delete folder toolchain-gccarmnoneeabi (compiler, **may not be deleted** )_
 
+![pico](https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pio-pico.jpg)
 ***
 
 ## Baremetal - New Project
