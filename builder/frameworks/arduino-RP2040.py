@@ -14,11 +14,14 @@ def dev_init(env, platform):
     sdk = dev_sdk(env)  
     dev_compiler(env, 'ARDUINO')
     dev_create_template(env)
-    add_flags(env, heap_size = '65536') 
+    add_flags(env, def_heap_size = '65536') 
     core = env.BoardConfig().get("build.core")
     variant= env.BoardConfig().get("build.variant")  
     env.Append(
-        CPPDEFINES = [ platform.upper() + "=200", ],
+        CPPDEFINES = [ 
+            platform.upper() + "=200", 
+            "OS_HEAP_SIZE=" + env.heap_size,
+        ],
         CPPPATH = [   
             join(env.framework_dir, sdk, "include"), # SDK      
             join(env.framework_dir, platform, platform), # ARDUINO
@@ -53,7 +56,9 @@ def dev_init(env, platform):
             "-<pico/pico_stdio>",                
             "-<pico/pico_fix>",    
             "-<pico/pico_float>",  
-            "-<pico/pico_double>", ]
+            "-<pico/pico_double>", 
+            #"-<pico/pico_util>",
+        ]
     ))   
 # FINALIZE      
     add_common(env)
