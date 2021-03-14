@@ -76,18 +76,18 @@ def dev_compiler(env, application_name = 'APPLICATION'):
     env.cortex = ["-mcpu=cortex-m0plus", "-mthumb"]
 
 def get_nano(env):
-    disable_nano = env.BoardConfig().get("build.disable_nano", "by defaut nano is enabled") 
+    disable_nano = env.BoardConfig().get("build.disable_nano", "by defaut nano is enabled") #
     nano = [] 
     if disable_nano == "true":
-        nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]       
+        nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]      
     return nano   
 
-def add_flags(env, heap_size = "2048"):
+def add_flags(env, def_heap_size = "2048"):
+    env.heap_size = env.BoardConfig().get("build.heap", def_heap_size)     
     optimization = env.BoardConfig().get("build.optimization", "-Os")
-    heap_size = env.BoardConfig().get("build.heap", heap_size) 
     stack_size = env.BoardConfig().get("build.stack", "2048") 
     print('  - OPTIMIZATION :', optimization) 
-    print('  - HEAP         :', heap_size) 
+    print('  - HEAP         :', env.heap_size) 
     print('  - STACK        :', stack_size) 
     env.Append(
         ASFLAGS=[ env.cortex, "-x", "assembler-with-cpp" ],
@@ -98,7 +98,6 @@ def add_flags(env, heap_size = "2048"):
         ],            
         CPPDEFINES = [ 
             "PICO_ON_DEVICE=1",
-            "PICO_HEAP_SIZE=" + heap_size,
             "PICO_STACK_SIZE=" + stack_size,
             "CFG_TUSB_MCU=OPT_MCU_RP2040"
         ],              
