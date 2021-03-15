@@ -153,17 +153,26 @@ def add_flags(env, def_heap_size = "2048"):
         BUILDERS = dict(
             ElfToBin = Builder(
                 action = env.VerboseAction(" ".join([
-                    "$OBJCOPY",
-                    "-O",
-                    "binary",
-                    "$SOURCES",
-                    "$TARGET",
+                    "$OBJCOPY", "-O",  "binary", 
+                    "$SOURCES", "$TARGET",
                 ]), "Building $TARGET"),
                 suffix = ".bin"
             )
         ),
         UPLOADCMD = dev_uploader
     )
+
+def add_usb(env):
+    if env.usb == False: 
+        if "tinyusb" in env.GetProjectOption("lib_deps", []):
+            env.Append(
+                CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO", "CFG_TUSB_DEBUG=0" ],
+                CPPPATH    = [ join(join(env.framework_dir, "library", "tinyusb"), "src") ]
+            )
+            env.libs.append( env.BuildLibrary(
+                join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_fix"),
+                join(env.framework_dir, env.sdk, "pico", "pico_fix") ) )
+        env.usb = True
 
 def add_common(env):
     boot = env.BoardConfig().get("build.boot", "w25q080") # get boot
@@ -172,18 +181,10 @@ def add_common(env):
         join("$BUILD_DIR", env.platform, "wizio", "boot2"),
         join(env.framework_dir, "wizio", "boot2", boot) ) )
 
-    if "PICO_STDIO_USB" in env.get("CPPDEFINES") and "tinyusb" in env.GetProjectOption("lib_deps", []):
-        env.Append(
-            CPPDEFINES = [
-                "CFG_TUSB_MCU=OPT_MCU_RP2040",
-                "CFG_TUSB_OS=OPT_OS_PICO",
-                "CFG_TUSB_DEBUG=0",
-            ],
-            CPPPATH = [ join(join(env.framework_dir, "library", "tinyusb"), "src") ]
-        )
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_fix"),
-            join(env.framework_dir, env.sdk, "pico", "pico_fix") ) )
+    env.usb = False
+    add_usb(env)
+    if "PICO_STDIO_USB" in env.get("CPPDEFINES"):
+        add_usb(env)
         env.libs.append( env.BuildLibrary(
             join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_usb"),
             join(env.framework_dir, env.sdk, "pico", "pico_stdio_usb") ) )
