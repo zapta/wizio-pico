@@ -6,7 +6,7 @@ from os.path import join
 from SCons.Script import DefaultEnvironment, Builder
 from platformio.builder.tools.piolib import PlatformIOLibBuilder
 from common import *
-             
+       
 def dev_init(env, platform):
     env.platform = platform   
     env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico") 
@@ -23,7 +23,8 @@ def dev_init(env, platform):
         CPPPATH    = [ 
             join(env.framework_dir, sdk, "include"), # SDK
             join(env.framework_dir, sdk, "boards"),  # BOARDS
-        ],       
+        ],
+        LINKFLAGS = [ "-Wl,-wrap,malloc", "-Wl,-wrap,free", "-Wl,-wrap,calloc", ],    
     )    
 # SDK           
     libs.append( env.BuildLibrary( 
