@@ -100,7 +100,9 @@ def add_flags(env, def_heap_size = "2048"):
             "PICO_ON_DEVICE=1",
             "PICO_HEAP_SIZE=" + env.heap_size,
             "PICO_STACK_SIZE=" + stack_size,
-            "CFG_TUSB_MCU=OPT_MCU_RP2040"
+            #"CFG_TUSB_MCU=OPT_MCU_RP2040",
+            #"CFG_TUSB_OS=OPT_OS_PICO",
+            #"CFG_TUSB_DEBUG=1",
         ],              
         CFLAGS = [
             env.cortex,
@@ -113,7 +115,7 @@ def add_flags(env, def_heap_size = "2048"):
             "-Wall", 
             "-Wfatal-errors",
             #"-Wstrict-prototypes",
-            #"-Wno-unused-function",
+            "-Wno-unused-function",
             #"-Wno-unused-but-set-variable",
             #"-Wno-unused-variable",
             #"-Wno-unused-value", 
@@ -137,7 +139,7 @@ def add_flags(env, def_heap_size = "2048"):
             #"-fno-zero-initialized-in-bss",                                                  
             "-Wall", 
             "-Wfatal-errors",
-            #"-Wno-unused-function",
+            "-Wno-unused-function",
             #"-Wno-unused-but-set-variable",
             #"-Wno-unused-variable",
             #"-Wno-unused-value",
@@ -183,13 +185,14 @@ def add_common(env):
         join("$BUILD_DIR", env.platform, "wizio", "boot2"), 
         join(env.framework_dir, "wizio", "boot2", boot) ) ) 
 
-    if "PICO_STDIO_USB" in env.get("CPPDEFINES") or "tinyusb" in env.GetProjectOption("lib_deps", []): 
+    if "PICO_STDIO_USB" in env.get("CPPDEFINES") and "tinyusb" in env.GetProjectOption("lib_deps", []):     
         env.Append( 
-            CPPPATH = [
-                join(env.framework_dir, env.sdk, "pico", "pico_fix", "rp2040_usb_device_enumeration", "include"),
-                join(env.framework_dir, env.sdk, "pico", "pico_stdio_usb", "include"), 
-                join(join(env.framework_dir, "library", "tinyusb"), "src")       
-            ]        
+            CPPDEFINES = [ 
+                "CFG_TUSB_MCU=OPT_MCU_RP2040",
+                "CFG_TUSB_OS=OPT_OS_PICO",
+                "CFG_TUSB_DEBUG=0",
+            ],             
+            CPPPATH = [ join(join(env.framework_dir, "library", "tinyusb"), "src") ]      
         )
         env.libs.append( env.BuildLibrary( 
             join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_fix"), 
@@ -198,6 +201,8 @@ def add_common(env):
         env.libs.append( env.BuildLibrary( 
             join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_usb"), 
             join(env.framework_dir, env.sdk, "pico", "pico_stdio_usb") ) )
+    print( env.get("CPPDEFINES") )
+
 
     if "freertos" in env.GetProjectOption("lib_deps", []):  
         env.Append( 
@@ -218,8 +223,7 @@ def add_common(env):
     if 'ARDUINO'== env.get("PROGNAME"): 
         return #########################################################################
 
-    if "PICO_STDIO_UART" in env.get("CPPDEFINES"):
-        env.Append( CPPPATH = [ join(env.framework_dir, env.sdk, "pico", "pico_stdio_uart", "include") ] )        
+    if "PICO_STDIO_UART" in env.get("CPPDEFINES"):      
         env.libs.append( env.BuildLibrary( 
             join("$BUILD_DIR", env.platform, "pico_stdio_uart"), 
             join(env.framework_dir, env.sdk, "pico", "pico_stdio_uart") ) ) 
