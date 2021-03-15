@@ -18,12 +18,9 @@ def dev_init(env, platform):
     core = env.BoardConfig().get("build.core")
     variant= env.BoardConfig().get("build.variant")  
     env.Append(
-        CPPDEFINES = [ 
-            platform.upper() + "=200", 
-            "OS_HEAP_SIZE=" + env.heap_size,
-        ],
+        CPPDEFINES = [ platform.upper()+"=200", ], # "OS_HEAP_SIZE=" + env.heap_size,
         CPPPATH = [   
-            join(env.framework_dir, sdk, "include"), # SDK      
+            join(env.framework_dir, sdk, "include"),     # SDK      
             join(env.framework_dir, platform, platform), # ARDUINO
             join(env.framework_dir, platform, "cores", core), 
             join(env.framework_dir, platform, "cores", core, 'newlib'),            

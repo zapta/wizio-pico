@@ -16,10 +16,7 @@ def dev_init(env, platform):
     dev_create_template(env)    
     add_flags(env) 
     env.Append( 
-        CPPDEFINES = [ 
-            platform.upper(), 
-            "PICO_HEAP_SIZE=" + env.heap_size,
-        ],
+        CPPDEFINES = [ platform.upper(),  ], # "PICO_HEAP_SIZE=" + env.heap_size,
         CPPPATH    = [ 
             join(env.framework_dir, sdk, "include"), # SDK
             join(env.framework_dir, sdk, "boards"),  # BOARDS
