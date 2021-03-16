@@ -5,13 +5,15 @@
 import os
 from os.path import join
 from SCons.Script import DefaultEnvironment, Builder
-from uf2conv import upload_app
+from common import *
 
 def dev_create_asm(target, source, env):
-    py = join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2", "pad_checksum")
+    py = join(env.framework_dir, env.sdk, "boot_stage2", "pad_checksum")
     dir = join(env["BUILD_DIR"], env["PROGNAME"])
     env.Execute("python " + py + " -s 0xffffffff " + dir + ".bin " + dir + ".S") 
-    pass
+    f = open(dir + ".S", "a")
+    f.write('\n#include "../link.S')
+    f.close()
                 
 def dev_compiler(env):
     env.Replace(
@@ -30,25 +32,26 @@ def dev_compiler(env):
         SIZECHECKCMD="$SIZETOOL -A -d $SOURCES",
         SIZEPRINTCMD='$SIZETOOL --mcu=$BOARD_MCU -C -d $SOURCES',
         PROGSUFFIX=".elf", 
-        PROGNAME = "boot2" 
+        PROGNAME = "BOOT-2" 
     )
     env.cortex = ["-mcpu=cortex-m0plus", "-mthumb"]
 
 def dev_init(env, platform):
-    print( "RASPBERRYPI PI PICO RP2040 BOOT STAGE 2")    
+    print( "RASPBERRYPI PI PICO RP2040 BOOT STAGE 2 COMPILER")    
+    env.platform = platform   
+    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico") 
+    env.libs = libs = []     
+    env.sdk = dev_sdk(env)    
     dev_compiler(env)
-    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico")
-
+    dev_create_template(env)
     env.Append(
         ASFLAGS=[ env.cortex, "-x", "assembler-with-cpp" ],        
         CPPDEFINES = [ "PICO_FLASH_SPI_CLKDIV=2"],        
         CPPPATH = [ 
-            join(env.framework_dir, "common"),    
-            join(env.framework_dir, "pico-sdk", "src", "rp2040", "hardware_regs", "include"),  
-            join(env.framework_dir, "pico-sdk", "src", "rp2040", "hardware_structs", "include"),  
-            join(env.framework_dir, "pico-sdk", "src", "common", "pico_base", "include"),          
-            join(env.framework_dir, "pico-sdk", "src", "rp2_common", "pico_platform", "include"),
-            join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2", "asminclude"),
+            join("$PROJECT_DIR", "include"),
+            join(env.framework_dir, env.sdk, "include"), 
+            join(env.framework_dir, env.sdk, "boards"),
+            join(env.framework_dir, env.sdk, "boot_stage2", "asminclude"),            
         ],        
         CFLAGS = [
             env.cortex,
@@ -58,9 +61,7 @@ def dev_init(env, platform):
             "-Wall", 
             "-Wfatal-errors",
             "-Wstrict-prototypes",                  
-        ],     
-        CXXFLAGS = [], 
-        CCFLAGS = [],                      
+        ],                        
         LINKFLAGS = [ 
             env.cortex,
             "-Os",    
@@ -70,9 +71,7 @@ def dev_init(env, platform):
             "-Wfatal-errors",                                                     
             "--entry=_stage2_boot"                    
         ],
-        LIBSOURCE_DIRS=[],
-        LDSCRIPT_PATH = join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2", "boot_stage2.ld"),
-        LIBS = [],                
+        LDSCRIPT_PATH = [ join(env.framework_dir, env.sdk, "boot_stage2", "boot_stage2.ld") ],             
         BUILDERS = dict(
             ElfToBin = Builder(
                 action = env.VerboseAction(" ".join([
@@ -93,8 +92,8 @@ def dev_init(env, platform):
 
 # Select file, Clean, Upload, Get boot2.S from build folder
 
-    env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2"), src_filter="-<*> +<boot2_w25q080.S>") # is default
-    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2"), src_filter="-<*> +<boot2_w25x10cl.S>")
-    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2"), src_filter="-<*> +<boot2_is25lp080.S>")
-    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2"), src_filter="-<*> +<boot2_generic_03h.S>")
-    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, "pico-sdk", "src", "rp2_common", "boot_stage2"), src_filter="-<*> +<boot2_usb_blinky.S>")    
+    env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, env.sdk, "boot_stage2"), src_filter="-<*> +<boot2_w25q080.S>") # is default
+    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, env.sdk, "boot_stage2"), src_filter="-<*> +<boot2_w25x10cl.S>")
+    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, env.sdk, "boot_stage2"), src_filter="-<*> +<boot2_is25lp080.S>")
+    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, env.sdk, "boot_stage2"), src_filter="-<*> +<boot2_generic_03h.S>")
+    #env.BuildSources(join("$BUILD_DIR", "BOOT2"), join(env.framework_dir, env.sdk, "boot_stage2"), src_filter="-<*> +<boot2_usb_blinky.S>")    

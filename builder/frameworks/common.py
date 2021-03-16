@@ -37,16 +37,22 @@ def dev_create_template(env):
     if "freertos" in env.GetProjectOption("lib_deps", []):
         do_copy(src, dst, "FreeRTOSConfig.h")
 
-    if "fatfs"    in env.GetProjectOption("lib_deps", []):
+    if "fatfs" in env.GetProjectOption("lib_deps", []):
         do_copy(src, dst, "ffconf.h")
+
+    if "VFS" in env.GetProjectOption("lib_deps", []):
+        do_copy(src, dst, "vfs_config.h")
 
     if 'APPLICATION'== env.get("PROGNAME"):
         dst = do_mkdir( env.subst("$PROJECT_DIR"), join("include", "pico") )
         do_copy(src, dst, "config_autogen.h" )
-
         dst = join(env.subst("$PROJECT_DIR"), "src")
         if False == os.path.isfile( join(dst, "main.cpp") ):
             do_copy(src, dst, "main.c" )
+
+    if 'BOOT-2'== env.get("PROGNAME"):
+        dst = do_mkdir( env.subst("$PROJECT_DIR"), join("include", "pico") )
+        do_copy(src, dst, "config_autogen.h" )           
 
 def dev_sdk(env):
     env.sdk = env.BoardConfig().get("build.sdk", "SDK110") # get/set default sdk
@@ -95,6 +101,7 @@ def add_flags(env, def_heap_size = "2048"):
             join("$PROJECT_DIR", "src"),
             join("$PROJECT_DIR", "lib"),
             join("$PROJECT_DIR", "include"),
+            join(join(env.framework_dir, "tinyusb"), "src")
         ],
         CPPDEFINES = [
             "PICO_ON_DEVICE=1",
@@ -162,38 +169,23 @@ def add_flags(env, def_heap_size = "2048"):
         UPLOADCMD = dev_uploader
     )
 
-def add_usb(env):
-    if env.usb == False: 
-        if "tinyusb" in env.GetProjectOption("lib_deps", []):
-            env.Append(
-                CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO", "CFG_TUSB_DEBUG=0" ],
-                CPPPATH    = [ join(join(env.framework_dir, "library", "tinyusb"), "src") ]
-            )
-            env.libs.append( env.BuildLibrary(
-                join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_fix"),
-                join(env.framework_dir, env.sdk, "pico", "pico_fix") ) )
-        env.usb = True
-
-def add_common(env):
+def add_boot(env):
     boot = env.BoardConfig().get("build.boot", "w25q080") # get boot
     print('  - BOOT         :', boot)
     env.libs.append( env.BuildLibrary(
         join("$BUILD_DIR", env.platform, "wizio", "boot2"),
         join(env.framework_dir, "wizio", "boot2", boot) ) )
 
-    env.usb = False
-    add_usb(env)
-    if "PICO_STDIO_USB" in env.get("CPPDEFINES"):
-        add_usb(env)
+def add_usb_library(env):
+    if "PICO_STDIO_USB" in env.get("CPPDEFINES") or "PICO_USB" in env.get("CPPDEFINES"):
+        env.Append( CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO", "CFG_TUSB_DEBUG=0" ], )
         env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_usb"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio_usb") ) )
+            join("$BUILD_DIR", env.platform, "usb", "tinyusb"),
+            join(env.framework_dir, "tinyusb") ) )            
 
-    if "freertos" in env.GetProjectOption("lib_deps", []):
-        env.Append(
-            CPPDEFINES = [ "USE_FREERTOS"],
-            CPPPATH    = [ join(join(env.framework_dir, "library", "freertos"), "include") ]
-        )
+def add_common(env):
+    add_boot(env)
+    add_usb_library(env)
 
     if "PICO_FLOAT_SUPPORT_ROM_V1" in env.get("CPPDEFINES"):
         env.libs.append( env.BuildLibrary(
@@ -205,24 +197,36 @@ def add_common(env):
             join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_double"),
             join(env.framework_dir, env.sdk, "pico", "pico_double") ) )
 
-    if 'ARDUINO'== env.get("PROGNAME"):
-        return #########################################################################
+    if 'ARDUINO'== env.get("PROGNAME"): 
+        if "freertos" in env.GetProjectOption("lib_deps", []):
+            env.Append(
+                CPPDEFINES = [ "USE_FREERTOS"],
+                CPPPATH    = [ join(join(env.framework_dir, "library", "freertos"), "include"), ]
+            )
+        return #########################################
+
+    if "PICO_STDIO_USB" in env.get("CPPDEFINES"):
+        env.libs.append( env.BuildLibrary(
+            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_usb"),
+            join(env.framework_dir, env.sdk, "pico", "pico_stdio_usb") ) )
 
     if "PICO_STDIO_UART" in env.get("CPPDEFINES"):
         env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, "pico_stdio_uart"),
+            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_uart"),
             join(env.framework_dir, env.sdk, "pico", "pico_stdio_uart") ) )
 
     if "PICO_STDIO_SEMIHOSTING" in env.get("CPPDEFINES"):
-        env.Append( CPPPATH = [ join(env.framework_dir, env.sdk, "pico", "pico_stdio_semihosting", "include") ] )
         env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, "pico_stdio_semihosting"),
+            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_semihosting"),
             join(env.framework_dir, env.sdk, "pico", "pico_stdio_semihosting") ) )
 
     if "PICO_PRINTF_PICO" in env.get("CPPDEFINES"):
         env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, "pico_printf"),
+            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_printf"),
             join(env.framework_dir, env.sdk, "pico", "pico_printf") ) )
+
+    if "freertos" in env.GetProjectOption("lib_deps", []):
+        env.Append( CPPDEFINES = [ "USE_FREERTOS"] )      
 
 def set_bynary_type(env):
     env.address = env.BoardConfig().get("build.address", "empty")   # get uf2 start address

@@ -16,7 +16,7 @@ def dev_init(env, platform):
     dev_create_template(env)    
     add_flags(env) 
     env.Append( 
-        CPPDEFINES = [ platform.upper(),  ], # "PICO_HEAP_SIZE=" + env.heap_size,
+        #CPPDEFINES = [],
         CPPPATH    = [ 
             join(env.framework_dir, sdk, "include"), # SDK
             join(env.framework_dir, sdk, "boards"),  # BOARDS
@@ -29,13 +29,12 @@ def dev_init(env, platform):
         join(env.framework_dir, sdk),
         src_filter=[ "+<*>", "-<boot_stage2>", 
             "-<pico/pico_standard_link/crt0.S>",
-            "-<pico/pico_printf>",            
             "-<pico/pico_stdio_semihosting>",
             "-<pico/pico_stdio_uart>",
-            "-<pico/pico_stdio_usb>",
-            "-<pico/pico_fix>",           
+            "-<pico/pico_stdio_usb>",          
             "-<pico/pico_float>",  
             "-<pico/pico_double>",
+            "-<pico/pico_printf>",            
         ]
     )) 
 # WIZIO    
