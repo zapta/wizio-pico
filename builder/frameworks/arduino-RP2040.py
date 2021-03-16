@@ -18,7 +18,7 @@ def dev_init(env, platform):
     core = env.BoardConfig().get("build.core")
     variant= env.BoardConfig().get("build.variant")  
     env.Append(
-        CPPDEFINES = [ platform.upper()+"=200", ], # "OS_HEAP_SIZE=" + env.heap_size,
+        CPPDEFINES = [ platform.upper()+"=200", ],
         CPPPATH = [   
             join(env.framework_dir, sdk, "include"),     # SDK      
             join(env.framework_dir, platform, platform), # ARDUINO
@@ -45,16 +45,15 @@ def dev_init(env, platform):
         join(env.framework_dir, sdk),
         src_filter=[ "+<*>", "-<boot_stage2>", 
             "-<pico/pico_standard_link>",
-            "-<pico/pico_malloc",
-            "-<pico/pico_printf>",               
             "-<pico/pico_stdio_semihosting>",            
             "-<pico/pico_stdio_uart>",
             "-<pico/pico_stdio_usb>",
             "-<pico/pico_stdio>",                
             "-<pico/pico_fix>",    
             "-<pico/pico_float>",  
-            "-<pico/pico_double>", 
-            #"-<pico/pico_util>",
+            "-<pico/pico_double>",
+            "-<pico/pico_malloc",
+            "-<pico/pico_printf>",              
         ]
     ))   
 # FINALIZE      
