@@ -1,10 +1,6 @@
-##########################################################################
-#
-# Autor: WizIO 2021 Georgi Angelov
+# WizIO 2021 Georgi Angelov
 #   http://www.wizio.eu/
 #   https://github.com/Wiz-IO/wizio-pico
-# 
-##########################################################################
 
 from platform import system
 from platformio.managers.platform import PlatformBase

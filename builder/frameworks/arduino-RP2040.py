@@ -22,8 +22,7 @@ def dev_init(env, platform):
         CPPPATH = [   
             join(env.framework_dir, sdk, "include"),     # SDK      
             join(env.framework_dir, platform, platform), # ARDUINO
-            join(env.framework_dir, platform, "cores", core), 
-            join(env.framework_dir, platform, "cores", core, 'newlib'),            
+            join(env.framework_dir, platform, "cores", core),            
             join(env.framework_dir, platform, "variants", variant), 
         ],
         LIBSOURCE_DIRS = [ join(env.framework_dir, platform, "libraries", core) ], 
@@ -39,25 +38,30 @@ def dev_init(env, platform):
     libs.append( env.BuildLibrary( 
         join("$BUILD_DIR", platform, "variants", variant),      
         join(env.framework_dir, platform, "variants", variant) ) )  
+#WIZIO 
+    libs.append( env.BuildLibrary( 
+        join("$BUILD_DIR", platform, "wizio"),   
+        join(env.framework_dir, "wizio") ) )          
 # SDK 
     libs.append( env.BuildLibrary( 
         join("$BUILD_DIR", platform, sdk), 
         join(env.framework_dir, sdk),
         src_filter=[ "+<*>", "-<boot_stage2>", 
-            "-<pico/pico_standard_link>",
+            "-<pico/pico_standard_link>",       # build_flags =
+            "-<pico/pico_float>",               #   -D PICO_FLOAT_SUPPORT_ROM_V1
+            "-<pico/pico_double>",              #   -D PICO_DOUBLE_SUPPORT_ROM_V1
+            "-<pico/pico_printf>",              #   -D PICO_PRINTF_PICO               
             "-<pico/pico_stdio_semihosting>",            
-            "-<pico/pico_stdio_uart>",
-            "-<pico/pico_stdio_usb>",
-            "-<pico/pico_stdio>",                
-            "-<pico/pico_fix>",    
-            "-<pico/pico_float>",  
-            "-<pico/pico_double>",
-            "-<pico/pico_malloc",
-            "-<pico/pico_printf>",              
+            "-<pico/pico_stdio_uart>",          
+            "-<pico/pico_stdio_usb>",                          
+            "-<pico/pico_stdio>",            
+            "-<pico/pico_malloc>", 
+            "-<lib/tinyusb>",           
         ]
     ))   
+
 # FINALIZE      
     add_common(env)
-    env.Append(LIBS = libs)  
     set_bynary_type(env)
+    env.Append(LIBS = libs)  
 

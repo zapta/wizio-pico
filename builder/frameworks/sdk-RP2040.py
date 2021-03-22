@@ -16,7 +16,6 @@ def dev_init(env, platform):
     dev_create_template(env)    
     add_flags(env) 
     env.Append( 
-        #CPPDEFINES = [],
         CPPPATH    = [ 
             join(env.framework_dir, sdk, "include"), # SDK
             join(env.framework_dir, sdk, "boards"),  # BOARDS
@@ -28,20 +27,21 @@ def dev_init(env, platform):
         join("$BUILD_DIR", platform, sdk),   
         join(env.framework_dir, sdk),
         src_filter=[ "+<*>", "-<boot_stage2>", 
-            "-<pico/pico_standard_link/crt0.S>",
-            "-<pico/pico_stdio_semihosting>",
-            "-<pico/pico_stdio_uart>",
-            "-<pico/pico_stdio_usb>",          
-            "-<pico/pico_float>",  
-            "-<pico/pico_double>",
-            "-<pico/pico_printf>",            
+            "-<pico/pico_standard_link/crt0.S>",    # build_flags =
+            "-<pico/pico_stdio_semihosting>",       #   -D PICO_STDIO_SEMIHOSTING
+            "-<pico/pico_stdio_uart>",              #   -D PICO_STDIO_UART
+            "-<pico/pico_stdio_usb>",               #   -D PICO_STDIO_USB  
+            "-<pico/pico_float>",                   #   -D PICO_FLOAT_SUPPORT_ROM_V1
+            "-<pico/pico_double>",                  #   -D PICO_DOUBLE_SUPPORT_ROM_V1
+            "-<pico/pico_printf>",                  #   -D PICO_PRINTF_PICO
+            "-<lib/tinyusb>",            
         ]
     )) 
 # WIZIO    
-    libs.append( env.BuildLibrary(  # crt0.S  syscall.c  
-        join("$BUILD_DIR", platform, "wizio", "pico"), 
-        join(env.framework_dir, "wizio", "pico") ) )
+    libs.append( env.BuildLibrary( 
+        join("$BUILD_DIR", platform, "wizio"),   
+        join(env.framework_dir, "wizio") ) )         
 # FINALIZE        
     add_common(env)
-    env.Append(LIBS = libs)  
     set_bynary_type(env)
+    env.Append(LIBS = libs)  

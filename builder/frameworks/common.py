@@ -30,32 +30,53 @@ def do_mkdir(path, name):
             exit(1)
     return dir
 
+def ini_file(env):
+    ini = join(env.subst("$PROJECT_DIR"), 'platformio.ini')
+    f = open(ini, "r")
+    txt = f.read()
+    f.close()
+    f = open(ini, "a+")
+    if 'upload_port' not in txt:
+        f.write("\n;upload_port = PicoDrive:\\ \n")
+    if 'monitor_port' not in txt:
+        f.write(";monitor_port = SERIAL PORT\n")        
+    if 'monitor_speed' not in txt:
+        f.write(";monitor_speed = 115200\n")   
+    if 'build_flags' not in txt:
+        f.write("\n;build_flags = \n")     
+    if 'lib_deps' not in txt:
+        f.write("\n;lib_deps = \n")                      
+    f.close()
+
 def dev_create_template(env):
+    ini_file(env)
     src = join(env.PioPlatform().get_package_dir("framework-wizio-pico"), "templates")
     dst = do_mkdir( env.subst("$PROJECT_DIR"), "include" )
 
-    if "freertos" in env.GetProjectOption("lib_deps", []):
+    if "freertos" in env.GetProjectOption("lib_deps", []) or "USE_FREERTOS" in env.get("CPPDEFINES"):
         do_copy(src, dst, "FreeRTOSConfig.h")
 
-    if "fatfs" in env.GetProjectOption("lib_deps", []):
-        do_copy(src, dst, "ffconf.h")
-
-    if "VFS" in env.GetProjectOption("lib_deps", []):
-        do_copy(src, dst, "vfs_config.h")
+    if "VFS" in env.GetProjectOption("lib_deps", []) or "USE_VFS" in env.get("CPPDEFINES"):
+        do_copy(src, dst, "vfs_config.h")            
 
     if 'APPLICATION'== env.get("PROGNAME"):
+        if "fatfs" in env.GetProjectOption("lib_deps", []):
+            do_copy(src, dst, "ffconf.h")
         dst = do_mkdir( env.subst("$PROJECT_DIR"), join("include", "pico") )
         do_copy(src, dst, "config_autogen.h" )
         dst = join(env.subst("$PROJECT_DIR"), "src")
         if False == os.path.isfile( join(dst, "main.cpp") ):
             do_copy(src, dst, "main.c" )
 
+    if 'ARDUINO'== env.get("PROGNAME"):     
+        pass
+
     if 'BOOT-2'== env.get("PROGNAME"):
         dst = do_mkdir( env.subst("$PROJECT_DIR"), join("include", "pico") )
-        do_copy(src, dst, "config_autogen.h" )           
+        do_copy(src, dst, "config_autogen.h" )     
 
 def dev_sdk(env):
-    env.sdk = env.BoardConfig().get("build.sdk", "SDK110") # get/set default sdk
+    env.sdk = env.BoardConfig().get("build.sdk", "SDK") # get/set default SDK
     print()
     print( Fore.BLUE + "%s RASPBERRYPI PI PICO RP2040 ( PICO - %s )" % (env.platform.upper(), env.sdk.upper()) )
     return env.sdk
@@ -81,11 +102,13 @@ def dev_compiler(env, application_name = 'APPLICATION'):
     )
     env.cortex = ["-mcpu=cortex-m0plus", "-mthumb"]
 
-def get_nano(env):
-    disable_nano = env.BoardConfig().get("build.disable_nano", "by defaut nano is enabled") #
-    nano = []
-    if disable_nano == "true":
+def dev_nano(env):
+    enable_nano = env.BoardConfig().get("build.nano", "enable") # no <sys/lock>
+    if enable_nano == "enable":
         nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]
+    else:
+        nano = [""]
+    if len(nano) > 0: print('  - SPECS        :', nano[0][7:])
     return nano
 
 def add_flags(env, def_heap_size = "2048"):
@@ -93,15 +116,23 @@ def add_flags(env, def_heap_size = "2048"):
     optimization = env.BoardConfig().get("build.optimization", "-Os")
     stack_size = env.BoardConfig().get("build.stack", "2048")
     print('  - OPTIMIZATION :', optimization)
-    print('  - HEAP         :', env.heap_size)
-    print('  - STACK        :', stack_size)
+    if 'ARDUINO' == env.get("PROGNAME"):
+        if "freertos" in env.GetProjectOption("lib_deps", []) or "USE_FREERTOS" in env.get("CPPDEFINES"):
+            pass
+        else:
+            print('  - STACK        :', stack_size)
+            print('  - HEAP         : maximum')            
+    else:
+        print('  - STACK        :', stack_size)
+        print('  - HEAP         :', env.heap_size)        
     env.Append(
         ASFLAGS=[ env.cortex, "-x", "assembler-with-cpp" ],
         CPPPATH = [
             join("$PROJECT_DIR", "src"),
             join("$PROJECT_DIR", "lib"),
             join("$PROJECT_DIR", "include"),
-            join(join(env.framework_dir, "tinyusb"), "src")
+            join( env.framework_dir, "wizio", "pico"),            
+            join( env.framework_dir, env.sdk, "lib", "tinyusb", "src" ),
         ],
         CPPDEFINES = [
             "PICO_ON_DEVICE=1",
@@ -120,6 +151,7 @@ def add_flags(env, def_heap_size = "2048"):
             "-Wno-unused-variable",
             "-Wno-unused-value",
             "-Wno-sign-compare",
+            "-Wno-discarded-qualifiers", 
         ],
         CXXFLAGS = [
             "-fno-rtti",
@@ -152,7 +184,7 @@ def add_flags(env, def_heap_size = "2048"):
             "-Xlinker", "--gc-sections",
             "-Wl,--gc-sections",
             "--entry=_entry_point",
-            get_nano(env)
+            dev_nano(env)
         ],
         LIBSOURCE_DIRS = [ join(env.framework_dir, "library") ],
         LIBPATH        = [ join(env.framework_dir, "library") ],
@@ -173,20 +205,27 @@ def add_boot(env):
     boot = env.BoardConfig().get("build.boot", "w25q080") # get boot
     print('  - BOOT         :', boot)
     env.libs.append( env.BuildLibrary(
-        join("$BUILD_DIR", env.platform, "wizio", "boot2"),
-        join(env.framework_dir, "wizio", "boot2", boot) ) )
+        join("$BUILD_DIR", env.platform, "wizio", "boot"),
+        join(env.framework_dir, "boot", boot) ) )
 
 def add_usb_library(env):
     if "PICO_STDIO_USB" in env.get("CPPDEFINES") or "PICO_USB" in env.get("CPPDEFINES"):
-        env.Append( CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO", "CFG_TUSB_DEBUG=0" ], )
+        print('  - USB          : tinyusb')
+        env.Append( CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO" ], )      
         env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, "usb", "tinyusb"),
-            join(env.framework_dir, "tinyusb") ) )            
+            join("$BUILD_DIR", env.platform, env.sdk, "usb", "tinyusb"),
+            join(env.framework_dir, env.sdk, "lib", "tinyusb") 
+        ))    
+
+def add_freertos(env):
+    if "freertos" in env.GetProjectOption("lib_deps", []) or "USE_FREERTOS" in env.get("CPPDEFINES"):
+        env.Append(  CPPPATH    = [ join(join(env.framework_dir, "library", "freertos"), "include") ]  )  
+        print('  - RTOS         : FreeRTOS')
+    if "USE_FREERTOS" not in env.get("CPPDEFINES"):
+        env.Append(  CPPDEFINES = [ "USE_FREERTOS"] )   
 
 def add_common(env):
     add_boot(env)
-    add_usb_library(env)
-
     if "PICO_FLOAT_SUPPORT_ROM_V1" in env.get("CPPDEFINES"):
         env.libs.append( env.BuildLibrary(
             join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_float"),
@@ -198,11 +237,6 @@ def add_common(env):
             join(env.framework_dir, env.sdk, "pico", "pico_double") ) )
 
     if 'ARDUINO'== env.get("PROGNAME"): 
-        if "freertos" in env.GetProjectOption("lib_deps", []):
-            env.Append(
-                CPPDEFINES = [ "USE_FREERTOS"],
-                CPPPATH    = [ join(join(env.framework_dir, "library", "freertos"), "include"), ]
-            )
         return #########################################
 
     if "PICO_STDIO_USB" in env.get("CPPDEFINES"):
@@ -224,9 +258,6 @@ def add_common(env):
         env.libs.append( env.BuildLibrary(
             join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_printf"),
             join(env.framework_dir, env.sdk, "pico", "pico_printf") ) )
-
-    if "freertos" in env.GetProjectOption("lib_deps", []):
-        env.Append( CPPDEFINES = [ "USE_FREERTOS"] )      
 
 def set_bynary_type(env):
     env.address = env.BoardConfig().get("build.address", "empty")   # get uf2 start address
@@ -256,6 +287,8 @@ def set_bynary_type(env):
             LDSCRIPT_PATH = join(env.framework_dir, env.sdk, "pico", "pico_standard_link", linker),
         )
     print('  - BINARY TYPE  :' , bynary_type, '[', linker, ' ', env.address, ']'  )
+    add_usb_library(env)
+    add_freertos(env)
     print()
 
 

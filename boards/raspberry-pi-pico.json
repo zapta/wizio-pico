@@ -8,7 +8,6 @@
     "core"      : "RP2040",
     "variant"   : "raspberry-pi-pico",    
     "f_cpu"     : "125000000L",
-    "f_cpu_max" : "273000000L",
     "mcu"       : "RP2040"
   },
 
