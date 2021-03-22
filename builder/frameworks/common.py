@@ -152,6 +152,7 @@ def add_flags(env, def_heap_size = "2048"):
             "-Wno-unused-value",
             "-Wno-sign-compare",
             "-Wno-discarded-qualifiers", 
+            "-Wno-pointer-to-int-cast",    
         ],
         CXXFLAGS = [
             "-fno-rtti",
@@ -171,7 +172,8 @@ def add_flags(env, def_heap_size = "2048"):
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",
             "-Wno-unused-value",
-            "-Wno-sign-compare",         
+            "-Wno-sign-compare", 
+            "-Wno-strict-aliasing",    
         ],
         LINKFLAGS = [
             env.cortex,
@@ -221,8 +223,8 @@ def add_freertos(env):
     if "freertos" in env.GetProjectOption("lib_deps", []) or "USE_FREERTOS" in env.get("CPPDEFINES"):
         env.Append(  CPPPATH    = [ join(join(env.framework_dir, "library", "freertos"), "include") ]  )  
         print('  - RTOS         : FreeRTOS')
-    if "USE_FREERTOS" not in env.get("CPPDEFINES"):
-        env.Append(  CPPDEFINES = [ "USE_FREERTOS"] )   
+        if "USE_FREERTOS" not in env.get("CPPDEFINES"):
+            env.Append(  CPPDEFINES = [ "USE_FREERTOS"] )   
 
 def add_common(env):
     add_boot(env)
