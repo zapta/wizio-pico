@@ -1,10 +1,7 @@
-# 
-##########################################################################
-# Autor: WizIO 2021 Georgi Angelov
+# WizIO 2021 Georgi Angelov
 #   http://www.wizio.eu/
-#   https://github.com/Wiz-IO/
-# 
-##########################################################################
+#   https://github.com/Wiz-IO/wizio-pico
+
 from __future__ import print_function
 from os.path import join
 from SCons.Script import (AlwaysBuild, Builder, COMMAND_LINE_TARGETS, Default, DefaultEnvironment)
