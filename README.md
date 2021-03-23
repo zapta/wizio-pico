@@ -64,8 +64,9 @@ PlatformIO -> Home -> New
 <img src="https://www.raspberrypi.org/documentation/pico/getting-started/static/15243f1ffd3b8ee646a1708bf4c0e866/Pico-R3-Pinout.svg" alt="Raspberry Pi Pico pin out diagram">
 
 ## Thanks to:
-* [Ivan Kravets ( PlatformIO )](https://platformio.org/)
+* [Timo Sandmann](https://github.com/tsandmann)
 * [Dean Blackketter](https://github.com/blackketter)
+* [Ivan Kravets ( PlatformIO )](https://platformio.org/)
 * [Comet Electronics](https://www.comet.bg/en/)
 
 ***
