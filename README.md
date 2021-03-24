@@ -4,16 +4,14 @@
 * **Version: 1.0.3** The project is a work in progress and is **very beta version** - there may be bugs...
 * This project not an official platform and is based on [**pico-sdk**](https://github.com/raspberrypi/pico-sdk)
 * **Systems support**
-* * windows, windows_x8, windows_amd64
-* * linux_x86_64, linux_armv6l, linux_armv7l, linux_armv8l
-* * darwin_x86_64, darwin_i386
+* * Windows, Linux, Darwin
 * **PICO-SDK** _( the file organization has been restructured to be flexible and have a fast compilation )_
 * * [ver 1.1.0 release](https://github.com/raspberrypi/pico-sdk/releases/tag/1.1.0) ( **default** )
 * **Frameworks**
 * * Baremetal ( pico-sdk, C/C++ )
 * * Arduino ( in progress... )
 * [PIO-ASM](https://github.com/Wiz-IO/wizio-pico/wiki/PIO-ASM)
-* * Windows, linux_x86_64, darwin_x86_64
+* * Windows, Linux, Darwin
 * **Libraries** [FreeRTOS](https://github.com/Wiz-IO/wizio-pico/wiki/COMMON#freertos), FatFS, littlefs ... etc
 * Basic unistd **[File System](https://github.com/Wiz-IO/wizio-pico/wiki/COMMON#file-system--vfs--virtual-file-system-)** ( RAM disk, FLASH disk, SD card )
 * [**READ WIKI**](https://github.com/Wiz-IO/wizio-pico/wiki/) 
