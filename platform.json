@@ -11,7 +11,7 @@
     "type": "git",
     "url": "https://github.com/Wiz-IO/wizio-pico.git"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "packageRepositories": [
     "http://dl.platformio.org/packages/manifest.json"
   ],
@@ -42,7 +42,7 @@
     "tool-wizio-pico": {
         "type": "uploader",
         "version": "https://github.com/Wiz-IO/tool-wizio-pico.git"
-    }
+    } 
 
   }
 }
