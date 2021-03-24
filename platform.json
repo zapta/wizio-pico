@@ -40,12 +40,8 @@
         "version": "=1.70201.0"
     },
     "tool-wizio-pico": {
-        "type": "toolchain",
+        "type": "uploader",
         "version": "https://github.com/Wiz-IO/tool-wizio-pico.git"
-    },
-    "uf2": {
-      "type": "uploader",
-      "optional": true
     }
 
   }
