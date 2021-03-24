@@ -59,7 +59,9 @@ PlatformIO -> Home -> New
 * BUILD / UPLOAD
 * [READ WIKI - ARDUINO](https://github.com/Wiz-IO/wizio-pico/wiki/ARDUINO)
 
-<img src="https://www.raspberrypi.org/documentation/pico/getting-started/static/15243f1ffd3b8ee646a1708bf4c0e866/Pico-R3-Pinout.svg" alt="Raspberry Pi Pico pin out diagram">
+<a href="https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pico_pins.svg">
+<img src="https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pico_pins.svg" alt="Raspberry Pi Pico pin out diagram">
+</a>
 
 ## Thanks to:
 * [Timo Sandmann](https://github.com/tsandmann)
