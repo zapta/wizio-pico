@@ -8,7 +8,7 @@
 * **PICO-SDK** _( the file organization has been restructured to be flexible and have a fast compilation )_
 * * [ver 1.1.0 release](https://github.com/raspberrypi/pico-sdk/releases/tag/1.1.0) ( **default** )
 * **Frameworks**
-* * Baremetal ( pico-sdk, C/C++ )
+* * Baremetal ( pico-sdk, C/C++ ) _baremetal is just a name for pico-sdk here_
 * * Arduino ( in progress... )
 * [PIO-ASM](https://github.com/Wiz-IO/wizio-pico/wiki/PIO-ASM)
 * * Windows, Linux, Darwin
