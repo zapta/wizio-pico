@@ -22,7 +22,7 @@ def execute(cmd):
         COLOR = Fore.RED
     for i in range( len(error) ):
         print( COLOR + error[i] )
-        sleep(0.02)
+        sleep(0.05)
     return proc.returncode
 
 def dev_pioasm(env):
@@ -35,8 +35,8 @@ def dev_pioasm(env):
     if None == tool:
         print( Fore.RED + '[PIO-ASM] ERROR: The', sys_dir, 'is no supported yet...' )
         return
-    
-    names = env.BoardConfig().get("build.pio_src", "0")
+
+    names = env.BoardConfig().get("build.pio", "0")
     if '0' == names:
         return
 

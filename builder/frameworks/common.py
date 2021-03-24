@@ -2,13 +2,13 @@
 #   http://www.wizio.eu/
 #   https://github.com/Wiz-IO/wizio-pico
 
-from SCons.Script import DefaultEnvironment, Builder, ARGUMENTS
-import os, json, tempfile, shutil
+import os
 from os.path import join, normpath, basename
 from shutil import copyfile
 from colorama import Fore
-from subprocess import check_output, CalledProcessError, call, Popen, PIPE
 from uf2conv import upload_app
+from SCons.Script import DefaultEnvironment, Builder, ARGUMENTS
+from pico import *
 
 def dev_uploader(target, source, env):
     drive = env.get("UPLOAD_PORT")
@@ -100,66 +100,45 @@ def dev_compiler(env, application_name = 'APPLICATION'):
         PROGSUFFIX=".elf",
         PROGNAME = application_name
     )
-    env.cortex = ["-mcpu=cortex-m0plus", "-mthumb"]
+    env.cortex = ["-march=armv6-m", "-mcpu=cortex-m0plus", "-mthumb"]
 
 def dev_nano(env):
     enable_nano = env.BoardConfig().get("build.nano", "enable") # no <sys/lock>
+    nano = [""]
     if enable_nano == "enable":
         nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]
-    else:
-        nano = [""]
-    if len(nano) > 0: print('  - SPECS        :', nano[0][7:])
+        pass  
+    if len(nano) > 0: print('  * SPECS        :', nano[0][7:])
     return nano
 
-def add_flags(env, def_heap_size = "2048"):
-    env.heap_size = env.BoardConfig().get("build.heap", def_heap_size)
+def add_flags(env, default_heap_size = "2048"):
+    env.heap_size = env.BoardConfig().get("build.heap", default_heap_size)
     optimization = env.BoardConfig().get("build.optimization", "-Os")
     stack_size = env.BoardConfig().get("build.stack", "2048")
-    print('  - OPTIMIZATION :', optimization)
+    print('  * OPTIMIZATION :', optimization)
     if 'ARDUINO' == env.get("PROGNAME"):
         if "freertos" in env.GetProjectOption("lib_deps", []) or "USE_FREERTOS" in env.get("CPPDEFINES"):
             pass
         else:
-            print('  - STACK        :', stack_size)
-            print('  - HEAP         : maximum')            
+            print('  * STACK        :', stack_size)
+            print('  * HEAP         : maximum')            
     else:
-        print('  - STACK        :', stack_size)
-        print('  - HEAP         :', env.heap_size)        
+        print('  * STACK        :', stack_size)
+        print('  * HEAP         :', env.heap_size)        
     env.Append(
         ASFLAGS=[ env.cortex, "-x", "assembler-with-cpp" ],
         CPPPATH = [
             join("$PROJECT_DIR", "src"),
             join("$PROJECT_DIR", "lib"),
             join("$PROJECT_DIR", "include"),
-            join( env.framework_dir, "wizio", "pico"),            
+            join( env.framework_dir, "wizio", "pico"),           
             join( env.framework_dir, env.sdk, "lib", "tinyusb", "src" ),
         ],
         CPPDEFINES = [
-            "PICO_ON_DEVICE=1",
+            "NDEBUG",            
+            "PICO_ON_DEVICE=1", 
             "PICO_HEAP_SIZE="  + env.heap_size,
             "PICO_STACK_SIZE=" + stack_size,
-        ],
-        CFLAGS = [
-            env.cortex,
-            optimization,
-            "-fdata-sections",
-            "-ffunction-sections",
-            #"-Wall",
-            #"-Wfatal-errors",
-            #"-Wno-unused-function",
-            #"-Wno-unused-but-set-variable",
-            #"-Wno-unused-variable",
-            #"-Wno-unused-value",
-            #"-Wno-sign-compare",
-            #"-Wno-discarded-qualifiers", 
-            #"-Wno-pointer-to-int-cast",    
-        ],
-        CXXFLAGS = [
-            "-fno-rtti",
-            "-fno-exceptions",
-            "-fno-non-call-exceptions",
-            "-fno-use-cxa-atexit",
-            "-fno-threadsafe-statics",
         ],
         CCFLAGS = [
             env.cortex,
@@ -167,30 +146,43 @@ def add_flags(env, def_heap_size = "2048"):
             "-fdata-sections",
             "-ffunction-sections",
             "-Wall",
-            "-Wfatal-errors",
+            "-Wextra",
+            "-Wfatal-errors",            
+            "-Wno-sign-compare",
+            "-Wno-type-limits",
+            "-Wno-unused-parameter",            
             "-Wno-unused-function",
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",
             "-Wno-unused-value",
-            "-Wno-sign-compare", 
             "-Wno-strict-aliasing",  
             "-Wno-maybe-uninitialized"  
+        ],        
+        CFLAGS = [
+            env.cortex,
+        ],
+        CXXFLAGS = [
+            "-fno-rtti",
+            "-fno-exceptions",
+            "-fno-threadsafe-statics",            
+            "-fno-non-call-exceptions",
+            "-fno-use-cxa-atexit",
         ],
         LINKFLAGS = [
             env.cortex,
             optimization,
             "-nostartfiles",
-            "-Wall",
-            "-Wfatal-errors",
-            "-fno-use-cxa-atexit",
-            "-fno-zero-initialized-in-bss",
             "-Xlinker", "--gc-sections",
             "-Wl,--gc-sections",
             "--entry=_entry_point",
+            #"-Wl,--cref", 
+            #"-Wl,--check-sections",
+            #"-Wl,--unresolved-symbols=report-all",
+            #"-Wl,--warn-section-align",            
             dev_nano(env)
         ],
         LIBSOURCE_DIRS = [ join(env.framework_dir, "library") ],
-        LIBPATH        = [ join(env.framework_dir, "library") ],
+        LIBPATH        = [ join(env.framework_dir, "library"), join("$PROJECT_DIR", "lib") ],
         LIBS = ['m', 'gcc'],
         BUILDERS = dict(
             ElfToBin = Builder(
@@ -206,14 +198,14 @@ def add_flags(env, def_heap_size = "2048"):
 
 def add_boot(env):
     boot = env.BoardConfig().get("build.boot", "w25q080") # get boot
-    print('  - BOOT         :', boot)
+    print('  * BOOT         :', boot)
     env.libs.append( env.BuildLibrary(
         join("$BUILD_DIR", env.platform, "wizio", "boot"),
         join(env.framework_dir, "boot", boot) ) )
 
 def add_usb_library(env):
     if "PICO_STDIO_USB" in env.get("CPPDEFINES") or "PICO_USB" in env.get("CPPDEFINES"):
-        print('  - USB          : tinyusb')
+        print('  * USB          : tinyusb')
         env.Append( CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO" ], )      
         env.libs.append( env.BuildLibrary(
             join("$BUILD_DIR", env.platform, env.sdk, "usb", "tinyusb"),
@@ -223,46 +215,12 @@ def add_usb_library(env):
 def add_freertos(env):
     if "freertos" in env.GetProjectOption("lib_deps", []) or "USE_FREERTOS" in env.get("CPPDEFINES"):
         env.Append(  CPPPATH    = [ join(join(env.framework_dir, "library", "freertos"), "include") ]  )  
-        print('  - RTOS         : FreeRTOS')
+        print('  * RTOS         : FreeRTOS')
         if "USE_FREERTOS" not in env.get("CPPDEFINES"):
             env.Append(  CPPDEFINES = [ "USE_FREERTOS"] )   
 
-def add_common(env):
-    add_boot(env)
-    if "PICO_FLOAT_SUPPORT_ROM_V1" in env.get("CPPDEFINES"):
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_float"),
-            join(env.framework_dir, env.sdk, "pico", "pico_float") ) )
-
-    if "PICO_DOUBLE_SUPPORT_ROM_V1" in env.get("CPPDEFINES"):
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_double"),
-            join(env.framework_dir, env.sdk, "pico", "pico_double") ) )
-
-    if 'ARDUINO'== env.get("PROGNAME"): 
-        return #########################################
-
-    if "PICO_STDIO_USB" in env.get("CPPDEFINES"):
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_usb"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio_usb") ) )
-
-    if "PICO_STDIO_UART" in env.get("CPPDEFINES"):
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_uart"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio_uart") ) )
-
-    if "PICO_STDIO_SEMIHOSTING" in env.get("CPPDEFINES"):
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_semihosting"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio_semihosting") ) )
-
-    if "PICO_PRINTF_PICO" in env.get("CPPDEFINES"):
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_printf"),
-            join(env.framework_dir, env.sdk, "pico", "pico_printf") ) )
-
-def set_bynary_type(env):
+def add_bynary_type(env):
+    add_boot(env)    
     env.address = env.BoardConfig().get("build.address", "empty")   # get uf2 start address
     linker = env.BoardConfig().get("build.linker", "empty")         # get linker srcipt
     bynary_type = env.BoardConfig().get("build.bynary_type", 'default')
@@ -289,9 +247,17 @@ def set_bynary_type(env):
         env.Append(
             LDSCRIPT_PATH = join(env.framework_dir, env.sdk, "pico", "pico_standard_link", linker),
         )
-    print('  - BINARY TYPE  :' , bynary_type, '[', linker, ' ', env.address, ']'  )
+    print('  * BINARY TYPE  :' , bynary_type, '[', linker, ' ', env.address, ']'  )
     add_usb_library(env)
     add_freertos(env)
-    print()
 
-
+def dev_finalize(env):
+# WIZIO    
+    env.libs.append( env.BuildLibrary( 
+        join("$BUILD_DIR", env.platform, "wizio"),   
+        join(env.framework_dir, "wizio") ) )          
+    add_bynary_type(env)
+# SDK 
+    add_sdk(env)        
+    env.Append(LIBS = env.libs)     
+    print() 
