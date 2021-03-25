@@ -37,11 +37,11 @@ def ini_file(env):
     f.close()
     f = open(ini, "a+")
     if 'upload_port' not in txt:
-        f.write("\n;upload_port = PicoDrive:\\ \n")
+        f.write("\n;upload_port = PICO_DRIVE:\\ \n")
     if 'monitor_port' not in txt:
-        f.write(";monitor_port = SERIAL PORT\n")        
+        f.write(";monitor_port = SERIAL_PORT\n")        
     if 'monitor_speed' not in txt:
-        f.write(";monitor_speed = 115200\n")   
+        f.write("monitor_speed = 115200\n")   
     if 'build_flags' not in txt:
         f.write("\n;build_flags = \n")     
     if 'lib_deps' not in txt:
@@ -104,15 +104,16 @@ def dev_compiler(env, application_name = 'APPLICATION'):
 
 def dev_nano(env):
     enable_nano = env.BoardConfig().get("build.nano", "enable") # no <sys/lock>
-    nano = [""]
+    nano = []
     if enable_nano == "enable":
         nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]
         pass  
     if len(nano) > 0: print('  * SPECS        :', nano[0][7:])
+    else:             print('  * SPECS        : default')
     return nano
 
-def add_flags(env, default_heap_size = "2048"):
-    env.heap_size = env.BoardConfig().get("build.heap", default_heap_size)
+def add_flags(env):
+    env.heap_size = env.BoardConfig().get("build.heap", "2048")
     optimization = env.BoardConfig().get("build.optimization", "-Os")
     stack_size = env.BoardConfig().get("build.stack", "2048")
     print('  * OPTIMIZATION :', optimization)
@@ -131,7 +132,8 @@ def add_flags(env, default_heap_size = "2048"):
             join("$PROJECT_DIR", "src"),
             join("$PROJECT_DIR", "lib"),
             join("$PROJECT_DIR", "include"),
-            join( env.framework_dir, "wizio", "pico"),           
+            join( env.framework_dir, "wizio", "pico"),    
+            join( env.framework_dir, "wizio", "newlib"),         
             join( env.framework_dir, env.sdk, "lib", "tinyusb", "src" ),
         ],
         CPPDEFINES = [

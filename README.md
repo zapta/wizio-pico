@@ -1,7 +1,7 @@
 ## Raspberry Pi Pico RP2040 - PlatformIO ( Pico-SDK & Arduino )
 
 **A few words in the beginning**
-* **Version: 1.0.4** The project is a work in progress and is **very beta version** - there may be bugs...
+* **Version: 1.0.5** The project is a work in progress and is **very beta version** - there may be bugs...
 * This project not an official platform and is based on [**pico-sdk**](https://github.com/raspberrypi/pico-sdk)
 * **Systems support**
 * * Windows, Linux, Darwin
