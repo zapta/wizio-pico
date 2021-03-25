@@ -13,7 +13,7 @@ def dev_init(env, platform):
     sdk = dev_sdk(env)  
     dev_compiler(env, 'ARDUINO')
     dev_create_template(env)
-    add_flags(env, default_heap_size = '65536') 
+    add_flags(env) 
     core = env.BoardConfig().get("build.core")
     variant= env.BoardConfig().get("build.variant")  
     env.Append(
