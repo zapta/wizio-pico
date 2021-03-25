@@ -1,4 +1,4 @@
-## Raspberry Pi Pico RP2040 - PlatformIO ( Pico-SDK & Arduino )
+## Raspberry Pi Pico RP2040 - PlatformIO ( Pico-SDK & Arduino ) (1.0.4)
 
 **A few words in the beginning**
 * **Version: 1.0.4** The project is a work in progress and is **very beta version** - there may be bugs...
