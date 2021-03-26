@@ -18,7 +18,7 @@
 * [Arduino Examples](https://github.com/Wiz-IO/wizio-pico/tree/main/examples/arduino)
 
 **Notes**
-* Please [Re-Install](https://github.com/Wiz-IO/wizio-pico/blob/main/README.md#fast-uninstal--reinstal--do-this-and-install-again) the platform. The project is a work in progress and is installed from here
+* Please [Re-Install](https://github.com/Wiz-IO/wizio-pico/blob/main/README.md#fast-uninstal--reinstal--do-this-and-install-again) the platform. The project is a work in progress and the platform is installed from here...
 * _I am in Home-Office, it's hard for me to test hardwares as SPI, I2C ... etc_
 
 ![pico](https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/a1.jpg)
