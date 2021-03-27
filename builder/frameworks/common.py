@@ -162,6 +162,7 @@ def add_flags(env):
         ],        
         CFLAGS = [
             env.cortex,
+            "-Wno-discarded-qualifiers"
         ],
         CXXFLAGS = [
             "-fno-rtti",
