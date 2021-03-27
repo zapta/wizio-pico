@@ -223,10 +223,12 @@ def add_freertos(env):
 
 def add_bynary_type(env):
     add_boot(env)    
-    env.address = env.BoardConfig().get("build.address", "empty")   # get uf2 start address
-    linker = env.BoardConfig().get("build.linker", "empty")         # get linker srcipt
-    bynary_type = env.BoardConfig().get("build.bynary_type", 'default')
-
+    bynary_type = env.BoardConfig().get("build.bynary_type", 'default')    
+    env.address = env.BoardConfig().get("build.address", "empty") # get uf2 start address
+    linker = env.BoardConfig().get("build.linker", "empty") # get linker srcipt 
+    if "empty" != linker: 
+        if "$PROJECT_DIR" in linker: # get linker srcipt from project or sdk
+            linker = linker.replace('$PROJECT_DIR', env["PROJECT_DIR"]).replace("\\", "/")
     if 'copy_to_ram' == bynary_type:
         if "empty" == env.address: env.address = '0x10000000'
         if "empty" == linker: linker = 'memmap_copy_to_ram.ld'
