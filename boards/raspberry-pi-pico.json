@@ -12,7 +12,8 @@
   },
 
   "debug": {
-    "openocd_target"  : "rp2040.cfg"
+    "openocd_target"  : "rp2040.cfg",
+    "svd_path"       : "rp2040.svd"
   },  
 
   "upload": {
