@@ -1,5 +1,5 @@
 {
-  "name": "WizIO - Raspberry Pi Pico ( PICOPROBE )",
+  "name": "WizIO - Raspberry Pi Pico ( CMSIS-DAP )",
   "url": "https://github.com",
   "vendor": "Raspberry Pi",  
   "frameworks": [ "baremetal", "arduino" ],
@@ -12,7 +12,7 @@
   },
 
   "debug": {
-    "openocd_target"  : "rp2040.cfg"
+    "openocd_target"  : "rp2040-core0.cfg"
   },  
 
   "upload": {
