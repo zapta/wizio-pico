@@ -2,9 +2,10 @@
 #   http://www.wizio.eu/
 #   https://github.com/Wiz-IO/wizio-pico
 
-#import sys
-#from platform import system
 from platformio.managers.platform import PlatformBase
+import os, platform
+from os.path import join
+from platform import system, machine
 
 class WiziopicoPlatform(PlatformBase):
     def is_embedded(self):
@@ -65,11 +66,11 @@ class WiziopicoPlatform(PlatformBase):
                 "-c", "adapter speed 4000",
                 "-c", "transport select swd"
             ]
-
+            #print('----------->', get_system())
             debug["tools"][link] = {
                 "server": {
                     "package": "tool-pico-openocd",
-                    "executable": "bin/openocd_rp2040",
+                    "executable": join(get_system(), "openocd_rp2040"), # set executable folder, name as get_system()
                     "arguments": server_args,
                 },
                 "init_cmds": [
@@ -81,3 +82,10 @@ class WiziopicoPlatform(PlatformBase):
 
         board.manifest["debug"] = debug
         return board
+
+def get_system():
+    sys_dir = system() +'_'+ machine()
+    sys_dir = sys_dir.lower()
+    if 'windows' in sys_dir: 
+        sys_dir = 'windows'
+    return sys_dir 
