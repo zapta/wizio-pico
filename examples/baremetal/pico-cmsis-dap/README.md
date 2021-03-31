@@ -14,7 +14,10 @@ int main(void)
     extern void dap_init(void);
     dap_init(); // run dap ( before all ) cmsis-dap @ core 1
 
-    /* YOUR CODE */
+    /* 
+         YOUR CODE 
+    */
+    
 ```
 
 add to platformio.ini
