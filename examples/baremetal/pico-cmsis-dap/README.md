@@ -2,9 +2,9 @@
 
 Original idea: [Peter Lawrence ( majbthrd )](https://github.com/majbthrd/pico-debug)
 
-CMSIS-DAP use Core 1 and tinyUSB for USB communication with OpenOCD to GDB
+CMSIS-DAP use Core 1 and TinyUSB for USB communication with OpenOCD to GDB
 
-No hardware is added...
+No hardware is added... all in one...
 
 ## How to
 
