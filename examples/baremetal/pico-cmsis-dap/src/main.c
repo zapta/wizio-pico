@@ -17,9 +17,6 @@ void blink(int ms)
 
 int main(void)
 {
-    extern void dap_init(void);
-    dap_init(); // run dap ( before all ) cmsis-dap @ core 1
-
     stdio_init_all();
     printf("\n\n[APP] Raspberry Pi Pico RP2040 CMSIS-DAP 2021 Georgi Angelov\n");
     while (true)
