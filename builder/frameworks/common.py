@@ -257,6 +257,8 @@ def add_bynary_type(env):
     add_freertos(env)
 
 def dev_finalize(env):
+    if "cmsis-dap" in env.GetProjectOption("lib_deps", []):
+        env.Append( CPPDEFINES = [ "DAP" ], )      
 # WIZIO    
     env.libs.append( env.BuildLibrary( 
         join("$BUILD_DIR", env.platform, "wizio"),   
