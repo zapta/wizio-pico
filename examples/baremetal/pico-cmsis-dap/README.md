@@ -8,18 +8,6 @@ No hardware is added... all in one...
 
 ## How to
 
-```c
-int main(void)
-{
-    extern void dap_init(void);
-    dap_init(); // run dap ( before all ) cmsis-dap @ core 1
-
-    /* 
-         YOUR CODE 
-    */
-    
-```
-
 add to platformio.ini
 
 ```ini
@@ -29,7 +17,7 @@ build_flags =
     -D CFG_TUD_HID=1                ; enable HID
     -D CFG_TUD_HID_EP_BUFSIZE=64    ; set HID size
 
-lib_deps = dap                      ; load library
+lib_deps = cmsis-dap                ; load library
 
 debug_tool = cmsis-dap              ; select tool
 
