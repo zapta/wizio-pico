@@ -66,6 +66,19 @@ class WiziopicoPlatform(PlatformBase):
                 "-c", "adapter speed 4000",
                 "-c", "transport select swd"
             ]
+            if link == "picoprobe":
+                init_cmds = [
+                    "target extended-remote $DEBUG_PORT", # use pio default settings
+                ]
+            else:
+                init_cmds = [
+                    "target extended-remote $DEBUG_PORT",
+                    "define pio_reset_halt_target",
+                    "end",
+                    "define pio_reset_run_target",
+                    "end",                    
+                ]
+
             #print('----------->', get_system())
             debug["tools"][link] = {
                 "server": {
@@ -73,9 +86,7 @@ class WiziopicoPlatform(PlatformBase):
                     "executable": join(get_system(), "openocd_rp2040"), # set executable folder, name as get_system()
                     "arguments": server_args,
                 },
-                "init_cmds": [
-                    "target extended-remote $DEBUG_PORT",
-                ],
+                "init_cmds": init_cmds,
                 "onboard": link in debug.get("onboard_tools", []),
                 "default": link == debug.get("default_tool"),
             }
