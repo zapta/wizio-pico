@@ -6,7 +6,8 @@ import re
 import os
 import os.path
 import argparse
-
+import time
+import serial
 
 UF2_MAGIC_START0 = 0x0A324655 # "UF2\n"
 UF2_MAGIC_START1 = 0x9E5D5157 # Randomly selected
@@ -310,24 +311,33 @@ if __name__ == "__main__":
 #   http://www.wizio.eu/
 #   https://github.com/Wiz-IO/wizio-pico
 
+def reset_stdio_usb(monitor_port):
+    time.sleep(0.1) 
+    try:
+        usb = serial.Serial(monitor_port, 1200) 
+        time.sleep(0.1)
+        usb.close()
+    except:
+        pass
+
 def upload_app(file_name, drive, addr = '0x10000000'): 
     if drive == None: 
         print("\n[ERROR] Please select drive in platformio.ini: upload_port = ????:/")
         exit()
-
+        
+    # TODO
+    #reset_stdio_usb( monitor_port )
+    #time.sleep(1.0) # Windows - AutoPlay
+    
     ext = "uf2"
     global appstartaddr
     appstartaddr = int(addr, 0)
-
     with open(file_name, mode='rb') as f: inpbuf = f.read() 
-
     print("  Converting to UF2") 
     print("  Start address: 0x%x" % (appstartaddr) )    
     outbuf = convert_to_uf2(inpbuf)  
     print("  Output size: %d bytes" % (len(outbuf)) ) 
-
     file_name = file_name.replace(".bin", ".uf2")
-
     if drive != '':
         file_name = os.path.basename(file_name)
         write_file(drive + file_name, outbuf)
