@@ -23,6 +23,7 @@ class WiziopicoPlatform(PlatformBase):
         return result
      
     def _add_dynamic_options(self, board):
+
         # upload protocols
         if not board.get("upload.protocols", []):
             board.manifest["upload"]["protocols"] = ["uf2"]
@@ -32,32 +33,25 @@ class WiziopicoPlatform(PlatformBase):
         # debug tools
         debug = board.manifest.get("debug", {})
         non_debug_protocols   = [ "uf2" ]
-        supported_debug_tools = [ "dap", "cmsis-dap", "picoprobe", ]
-
-        upload_protocol = board.manifest.get("upload", {}).get("protocol")
+        supported_debug_tools = [ "cmsis-dap", "picoprobe", ]
+        upload_protocol  = board.manifest.get("upload", {}).get("protocol")
         upload_protocols = board.manifest.get("upload", {}).get("protocols", [])
         if debug:
             upload_protocols.extend(supported_debug_tools)
         if upload_protocol and upload_protocol not in upload_protocols:
             upload_protocols.append(upload_protocol)
         board.manifest["upload"]["protocols"] = upload_protocols
-
         if "tools" not in debug:
             debug["tools"] = {}
-
         for link in upload_protocols:
-            openocd_interface = link
             if link in non_debug_protocols or link in debug["tools"]: continue
             server_args = [
                 "-s", "$PACKAGE_DIR/share/openocd/scripts",
-                "-f", "interface/%s.cfg" % openocd_interface,
-                "-f", "%s/%s" % (
-                    ("target", debug.get("openocd_target"))
-                    if "openocd_target" in debug
-                    else ("board", debug.get("openocd_board"))
-                ),
+                "-f", "interface/%s.cfg" % link,
+                "-f", "target/%s" % debug.get("openocd_target"),
                 "-c", "adapter speed 4000",
-                "-c", "transport select swd"
+                "-c", "transport select swd",
+                #"-d4"
             ]
             if link == "picoprobe":
                 init_cmds = [
@@ -71,19 +65,17 @@ class WiziopicoPlatform(PlatformBase):
                     "define pio_reset_run_target",
                     "end",                    
                 ]
-
             #print('----------->', get_system())
             debug["tools"][link] = {
                 "server": {
-                    "package": "tool-pico-openocd",
-                    "executable": join(get_system(), "openocd_rp2040"), # set executable folder, name as get_system()
-                    "arguments": server_args,
+                    "package"    : "tool-pico-openocd",
+                    "executable" : join(get_system(), "openocd_rp2040"),
+                    "arguments"  : server_args,
                 },
-                "init_cmds": init_cmds,
-                "onboard": link in debug.get("onboard_tools", []),
-                "default": link == debug.get("default_tool"),
+                "init_cmds"      : init_cmds,
+                "onboard"        : link in debug.get("onboard_tools", []),
+                "default"        : link == debug.get("default_tool"),
             }
-
         board.manifest["debug"] = debug
         return board
 
