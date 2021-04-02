@@ -1,7 +1,10 @@
 ## Raspberry Pi Pico RP2040 - PlatformIO ( Pico-SDK & Arduino )
 
 **A few words in the beginning**
-**SORRY** The platform is installed from **here** and 
+
+**SORRY** 
+
+The platform is installed from **here** and 
 
 I and friends make fixes to be stable and platform need to be **re-installed** for current "stable" version.
 
