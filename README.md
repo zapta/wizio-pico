@@ -60,7 +60,7 @@ PlatformIO -> Home -> New
 * [READ WIKI - ARDUINO](https://github.com/Wiz-IO/wizio-pico/wiki/ARDUINO)
 
 ### NOTE
-IF **PICO_STDIO_USB** is used, the Uploader will try ro reset Pico to boot-uf2 mode without button
+IF **PICO_STDIO_USB** is used, the Uploader will try ro reset Pico to boot-uf2 mode without button and USB cable remove
 
 <a href="https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pico_pins.svg">
 <img src="https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pico_pins.svg" alt="Raspberry Pi Pico pin out diagram">
