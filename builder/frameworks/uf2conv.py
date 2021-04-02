@@ -319,12 +319,13 @@ def dev_uploader(target, source, env):
     bin_name = join(env.get("BUILD_DIR"), env.get("PROGNAME"))+'.bin'
     uf2_name = join(env.get("BUILD_DIR"), env.get("PROGNAME"))+'.uf2'
     drive = env.get("UPLOAD_PORT")
-    try: # reset usb stdio
-        usb = serial.Serial( env.BoardConfig().get( "upload.monitor_port", {} ), 1200) 
-        time.sleep(0.1)
-        usb.close()
-    except:
-        pass
+    if None != env.GetProjectOption("monitor_port"):
+        try: # reset usb stdio
+            usb = serial.Serial( env.GetProjectOption("monitor_port"), 1200)
+            time.sleep(0.1)
+            usb.close()
+        except:
+            pass
     time.sleep(1.0) # Windows - AutoPlay
     with open( bin_name, mode='rb' ) as f: inpbuf = f.read() 
     print("  Converting to UF2") 
@@ -337,7 +338,7 @@ def dev_uploader(target, source, env):
         print("  WARNING No Pico drive to deploy.")
         return
     for d in drives:
-        print("Flashing %s (%s)" % (d, board_id(d)))        
+        print("Flashing %s (%s)" % (d, board_id(d)))       
         write_file(d +'/'+ env.get("PROGNAME")+'.uf2', outbuf) # write ufs to pico
     time.sleep(1.0) # usb-serial driver up
 
