@@ -6,15 +6,9 @@ import os
 from os.path import join, normpath, basename
 from shutil import copyfile
 from colorama import Fore
-from uf2conv import upload_app
-from SCons.Script import DefaultEnvironment, Builder, ARGUMENTS
 from pico import *
-
-def dev_uploader(target, source, env):
-    drive = env.get("UPLOAD_PORT")
-    if None == drive:
-        drive = env.get("BUILD_DIR") + '/'
-    return upload_app(join(env.get("BUILD_DIR"), env.get("PROGNAME")) + '.bin', drive, env.address)
+from uf2conv import dev_uploader
+from SCons.Script import DefaultEnvironment, Builder, ARGUMENTS
 
 def do_copy(src, dst, name):
     if False == os.path.isfile( join(dst, name) ):
@@ -36,16 +30,11 @@ def ini_file(env):
     txt = f.read()
     f.close()
     f = open(ini, "a+")
-    if 'upload_port' not in txt:
-        f.write("\n;upload_port = PICO_DRIVE:\\ \n")
-    if 'monitor_port' not in txt:
-        f.write(";monitor_port = SERIAL_PORT\n")        
-    if 'monitor_speed' not in txt:
-        f.write("monitor_speed = 115200\n")   
-    if 'build_flags' not in txt:
-        f.write("\n;build_flags = \n")     
-    if 'lib_deps' not in txt:
-        f.write("\n;lib_deps = \n")                      
+    #if 'upload_port' not in txt: f.write("\n;upload_port = PICO_DRIVE:\\ \n")
+    if 'monitor_port'  not in txt: f.write(";monitor_port = SERIAL_PORT\n")        
+    if 'monitor_speed' not in txt: f.write("monitor_speed = 115200\n")   
+    if 'build_flags'   not in txt: f.write("\n;build_flags = \n")     
+    if 'lib_deps'      not in txt: f.write("\n;lib_deps = \n")                      
     f.close()
 
 def dev_create_template(env):

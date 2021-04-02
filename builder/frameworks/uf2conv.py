@@ -8,6 +8,7 @@ import os.path
 import argparse
 import time
 import serial
+from os.path import join
 
 UF2_MAGIC_START0 = 0x0A324655 # "UF2\n"
 UF2_MAGIC_START1 = 0x9E5D5157 # Randomly selected
@@ -44,7 +45,7 @@ families = {
 INFO_FILE = "/INFO_UF2.TXT"
 
 appstartaddr    = 0x10000000 # pico flash
-familyid        = 0xe48bff56 # pico
+familyid        = 0xe48bff56 # pico selected
 
 
 def is_uf2(buf):
@@ -311,37 +312,35 @@ if __name__ == "__main__":
 #   http://www.wizio.eu/
 #   https://github.com/Wiz-IO/wizio-pico
 
-def reset_stdio_usb(monitor_port):
-    time.sleep(0.1) 
-    try:
-        usb = serial.Serial(monitor_port, 1200) 
+
+def dev_uploader(target, source, env):
+    global appstartaddr
+    appstartaddr = int(env.address, 0)    
+    bin_name = join(env.get("BUILD_DIR"), env.get("PROGNAME"))+'.bin'
+    uf2_name = join(env.get("BUILD_DIR"), env.get("PROGNAME"))+'.uf2'
+    drive = env.get("UPLOAD_PORT")
+    try: # reset usb stdio
+        usb = serial.Serial( env.BoardConfig().get( "upload.monitor_port", {} ), 1200) 
         time.sleep(0.1)
         usb.close()
     except:
         pass
-
-def upload_app(file_name, drive, addr = '0x10000000'): 
-    if drive == None: 
-        print("\n[ERROR] Please select drive in platformio.ini: upload_port = ????:/")
-        exit()
-        
-    # TODO
-    #reset_stdio_usb( monitor_port )
-    #time.sleep(1.0) # Windows - AutoPlay
-    
-    ext = "uf2"
-    global appstartaddr
-    appstartaddr = int(addr, 0)
-    with open(file_name, mode='rb') as f: inpbuf = f.read() 
+    time.sleep(1.0) # Windows - AutoPlay
+    with open( bin_name, mode='rb' ) as f: inpbuf = f.read() 
     print("  Converting to UF2") 
     print("  Start address: 0x%x" % (appstartaddr) )    
-    outbuf = convert_to_uf2(inpbuf)  
-    print("  Output size: %d bytes" % (len(outbuf)) ) 
-    file_name = file_name.replace(".bin", ".uf2")
-    if drive != '':
-        file_name = os.path.basename(file_name)
-        write_file(drive + file_name, outbuf)
-    else:
-        print('Saved to file')
-        write_file(file_name, outbuf)
-    pass
+    outbuf = convert_to_uf2(inpbuf)   
+    time.sleep(.1)
+    write_file(uf2_name, outbuf) # write uf2 to build folder
+    drives = get_drives()
+    if len(drives) == 0:
+        print("  WARNING No Pico drive to deploy.")
+        return
+    for d in drives:
+        print("Flashing %s (%s)" % (d, board_id(d)))        
+        write_file(d + env.get("PROGNAME")+'.uf2', outbuf) # write ufs to pico
+    time.sleep(1.0) # usb-serial driver up
+
+
+                
+        
