@@ -2,7 +2,7 @@
 
 **A few words in the beginning**
 * **I AM SORRY** The platform is installed from **here** and I and friends make fixes to be stable and platform need to be **re-installed** for current "stable" version.
-* I not have support from PI ( they don't care ) to do this ... only from "sports malice"
+* I not have support from PI ( and they don't care ) to do this ... only from "sports malice"
 * 
 * **Version: 1.0.5** The project is a work in progress and is **very beta version** - there may be bugs...
 * This project not an official platform and is based on [**pico-sdk**](https://github.com/raspberrypi/pico-sdk)
