@@ -33,7 +33,8 @@ class WiziopicoPlatform(PlatformBase):
         return result
      
     def _add_dynamic_options(self, board):
-        board.manifest["upload"]["monitor_port"] = self.monitor_port
+        if hasattr(board.manifest["upload"],"monitor_port"):
+            board.manifest["upload"]["monitor_port"] = self.monitor_port
 
         # upload protocols
         if not board.get("upload.protocols", []):
