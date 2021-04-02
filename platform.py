@@ -11,6 +11,10 @@ class WiziopicoPlatform(PlatformBase):
     def is_embedded(self):
         return True
 
+    def configure_default_packages(self, variables, targets):
+        self.monitor_port = variables.get("monitor_port", [])
+        return PlatformBase.configure_default_packages(self, variables, targets)
+
 #####################################################################################################
 #
 #   NEED MORE EXPERIMENTS
@@ -29,7 +33,8 @@ class WiziopicoPlatform(PlatformBase):
         return result
      
     def _add_dynamic_options(self, board):
-        
+        board.manifest["upload"]["monitor_port"] = self.monitor_port
+
         # upload protocols
         if not board.get("upload.protocols", []):
             board.manifest["upload"]["protocols"] = ["uf2"]
