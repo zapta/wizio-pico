@@ -326,7 +326,7 @@ def dev_uploader(target, source, env):
             usb.close()
         except:
             pass
-    time.sleep(1.0) # Windows - AutoPlay
+    time.sleep(2.0) # Mac/Windows - AutoPlay
     with open( bin_name, mode='rb' ) as f: inpbuf = f.read() 
     print("  Converting to UF2") 
     print("  Start address: 0x%x" % (appstartaddr) )    
