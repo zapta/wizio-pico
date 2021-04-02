@@ -338,7 +338,7 @@ def dev_uploader(target, source, env):
         return
     for d in drives:
         print("Flashing %s (%s)" % (d, board_id(d)))        
-        write_file(d + env.get("PROGNAME")+'.uf2', outbuf) # write ufs to pico
+        write_file(d +'/'+ env.get("PROGNAME")+'.uf2', outbuf) # write ufs to pico
     time.sleep(1.0) # usb-serial driver up
 
 
