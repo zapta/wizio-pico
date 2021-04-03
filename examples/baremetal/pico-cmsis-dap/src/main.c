@@ -15,12 +15,25 @@ void blink(int ms)
     sleep_ms(ms);
 }
 
+int a = 1, b = 2, c = 3, begin = 0;
+
 int main(void)
 {
+    while (0 == begin) // SET THIS VAR FROM DEBUG ( GLOABAL VAR )
+        ;
+
     stdio_init_all();
     printf("\n\n[APP] Raspberry Pi Pico RP2040 CMSIS-DAP 2021 Georgi Angelov\n");
     while (true)
     {
-        blink(100);
+        blink(a);
+        a += 10;
+        printf("a=%d\n", a);
+        blink(b);
+        b += 20;
+        printf("b=%d\n", b);
+        blink(c);
+        c += 30;
+        printf("b=%d\n", c);
     }
 }
