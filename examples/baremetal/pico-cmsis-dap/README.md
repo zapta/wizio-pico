@@ -22,7 +22,7 @@ debug_tool = cmsis-dap              ; select tool
 build_type = release
 ```
 
-Compile, Upload, set bleakpoints, F5 for Debug...( tested on Windows 7/10 )
+Put board in boot-uf2 mode, F5 for Debug...( tested on Windows 7/10 )
 
 _must work and with Arduino ( not tested )_
 
