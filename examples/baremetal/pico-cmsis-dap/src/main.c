@@ -30,12 +30,12 @@ int main(void)
     {
         blink(a);
         a += 10;
-        printf("a = %d\n", a);
+        printf("A = %d\n", a);
         blink(b);
         b += 20;
-        printf("b = %d\n", b);
+        printf("B = %d\n", b);
         blink(c);
         c += 30;
-        printf("b = %d\n", c);
+        printf("C = %d\n", c);
     }
 }
