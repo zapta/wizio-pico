@@ -16,7 +16,6 @@ build_flags =
     -D PICO_USB                     ; load tyniusb for OpenOCD @ cmsis-dap
     -D CFG_TUD_HID=1                ; enable HID
     -D CFG_TUD_HID_EP_BUFSIZE=64    ; set HID size
-    -D USE_DEBUG
 
 lib_deps   = cmsis-dap              ; load library
 debug_tool = cmsis-dap              ; select tool
