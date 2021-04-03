@@ -24,4 +24,8 @@ upload = env.Alias("upload", prg, [
 ])
 AlwaysBuild( upload )    
 
-Default( prg )
+debug_tool = env.GetProjectOption("debug_tool")
+if 'cmsis-dap' in debug_tool:
+    Default( upload )
+else:
+    Default( prg )
