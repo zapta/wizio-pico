@@ -4,6 +4,8 @@ Original idea: [Peter Lawrence ( majbthrd )](https://github.com/majbthrd/pico-de
 
 CMSIS-DAP use Core 1 and TinyUSB for USB communication with OpenOCD to GDB
 
+Тhis cmsis-dap can not be probe & flasher simultaneously
+
 No hardware is added... all in one...
 
 ## How to
@@ -23,8 +25,6 @@ build_type = release
 ```
 
 Put board in boot-uf2 mode, F5 for Debug...( tested on Windows 7/10 )
-
-_this cmsis-dap can not be probe & flasher simultaneously_
 
 _must work and with Arduino ( not tested )_
 
