@@ -24,6 +24,8 @@ build_type = release
 
 Put board in boot-uf2 mode, F5 for Debug...( tested on Windows 7/10 )
 
+_this cmsis-dap can not be probe & flasher simultaneously_
+
 _must work and with Arduino ( not tested )_
 
 
