@@ -3,9 +3,16 @@
 #   https://github.com/Wiz-IO/wizio-pico
 
 from platformio.managers.platform import PlatformBase
-import os, platform
+import os, platform, copy
 from os.path import join
 from platform import system, machine
+
+def get_system():
+    sys_dir = system() +'_'+ machine()
+    sys_dir = sys_dir.lower()
+    if 'windows' in sys_dir: 
+        sys_dir = 'windows'
+    return sys_dir 
 
 class WiziopicoPlatform(PlatformBase):
     def is_embedded(self):
@@ -23,13 +30,11 @@ class WiziopicoPlatform(PlatformBase):
         return result
      
     def _add_dynamic_options(self, board):
-
         # upload protocols
         if not board.get("upload.protocols", []):
             board.manifest["upload"]["protocols"] = ["uf2"]
         if not board.get("upload.protocol", ""):
             board.manifest["upload"]["protocol"] = "uf2"
-
         # debug tools
         debug = board.manifest.get("debug", {})
         non_debug_protocols   = [ "uf2" ]
@@ -48,14 +53,11 @@ class WiziopicoPlatform(PlatformBase):
             server_args = [
                 "-s", "$PACKAGE_DIR/share/openocd/scripts",
                 "-f", "interface/%s.cfg" % link,
-                "-f", "target/%s" % debug.get("openocd_target"),
-                "-c", "adapter speed 4000",
-                "-c", "transport select swd",
-                #"-d4"
+                "-f", "target/%s" % debug.get("openocd_target")
             ]
             if link == "picoprobe":
                 init_cmds = [
-                    "target extended-remote $DEBUG_PORT", # use pio default settings
+                    "target extended-remote $DEBUG_PORT" # use pio default settings
                 ]
             else:
                 init_cmds = [
@@ -63,7 +65,7 @@ class WiziopicoPlatform(PlatformBase):
                     "define pio_reset_halt_target",
                     "end",
                     "define pio_reset_run_target",
-                    "end",                    
+                    "end"
                 ]
             #print('----------->', get_system())
             debug["tools"][link] = {
@@ -79,9 +81,15 @@ class WiziopicoPlatform(PlatformBase):
         board.manifest["debug"] = debug
         return board
 
-def get_system():
-    sys_dir = system() +'_'+ machine()
-    sys_dir = sys_dir.lower()
-    if 'windows' in sys_dir: 
-        sys_dir = 'windows'
-    return sys_dir 
+    def configure_debug_options(self, initial_debug_options, ide_data):
+        """
+        Deprecated. Remove method when PlatformIO Core 5.2 is released
+        """
+        debug_options = copy.deepcopy(initial_debug_options)
+        if "cmsis-dap" in debug_options["tool"]:
+            debug_options["server"]["arguments"].extend( [
+                    "-c", "adapter speed %s" % (initial_debug_options.get("speed") or "20000"),
+                    "-c", "transport select swd"
+                ]
+            )
+        return debug_options
