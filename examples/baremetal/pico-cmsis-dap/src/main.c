@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+extern char unique_id[17];
 
 void blink(int ms)
 {
@@ -24,16 +25,17 @@ int main(void)
 
     stdio_init_all();
     printf("\n\n[APP] Raspberry Pi Pico RP2040 CMSIS-DAP 2021 Georgi Angelov\n");
+    printf("[APP] PICO ID: %s\n", unique_id);
     while (true)
     {
         blink(a);
         a += 10;
-        printf("a=%d\n", a);
+        printf("a = %d\n", a);
         blink(b);
         b += 20;
-        printf("b=%d\n", b);
+        printf("b = %d\n", b);
         blink(c);
         c += 30;
-        printf("b=%d\n", c);
+        printf("b = %d\n", c);
     }
 }
