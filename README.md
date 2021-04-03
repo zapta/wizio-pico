@@ -7,7 +7,7 @@
 * * Windows, Linux, Darwin
 * **PICO-SDK** _( the file organization has been restructured to be flexible and have a fast compilation )_
 * * [ver 1.1.1 release](https://github.com/raspberrypi/pico-sdk/releases/tag/1.1.0) ( **default** )
-* * for ver 1.1.0 - provect/platformio.ini board_build.sdk = SDK110 
+* * for ver 1.1.0 - project/platformio.ini board_build.sdk = SDK110 
 * **Frameworks**
 * * Baremetal ( pico-sdk, C/C++ ) _baremetal is just a name for pico-sdk here_
 * * Arduino ( in progress... )
