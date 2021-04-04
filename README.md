@@ -2,6 +2,7 @@
 
 **A few words in the beginning**
 * **Version: 1.0.6** The project is a work in progress and is **very beta version** - there may be bugs...
+* [Look here, if there is something new](https://github.com/Wiz-IO/wizio-pico/wiki#last-news) 
 * This project not an official platform and is based on [**pico-sdk**](https://github.com/raspberrypi/pico-sdk)
 * **Systems support**
 * * Windows, Linux, Darwin
