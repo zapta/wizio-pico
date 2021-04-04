@@ -1,9 +1,0 @@
-{
-    "name": "Adafruit GFX Library",     
-    "platforms" : ["*"], 
-    "frameworks": ["*"],
-    "export": {
-        "exclude": [], 
-        "include": null
-    }
-}
