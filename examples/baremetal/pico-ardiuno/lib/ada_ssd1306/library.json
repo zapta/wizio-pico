@@ -1,9 +1,0 @@
-{
-    "name": "Adafruit SSD1306 Library",
-    "platforms" : ["*"], 
-    "frameworks": ["*"],     
-    "export": {
-        "exclude" : [], 
-        "include" : null
-    }
-}
