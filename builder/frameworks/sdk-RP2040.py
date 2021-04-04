@@ -19,6 +19,7 @@ def dev_init(env, platform):
             join(env.framework_dir, sdk, "include"), # SDK
             join(env.framework_dir, sdk, "boards"),  # BOARDS
         ],
+        CPPDEFINES = [ "BAREMETAL" ]
     )
     dev_finalize(env)
 
