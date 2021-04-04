@@ -4,7 +4,6 @@ int main(void)
 {
     Serial.begin(115200, true); // true - retarget stdio printf()
     pinMode(25, OUTPUT);
-    oled_setup();
     while (true)
     {
         Serial.print("LO");
