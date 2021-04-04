@@ -1,3 +1,7 @@
+/*
+     how to: https://github.com/Wiz-IO/wizio-pico/wiki/BAREMETAL#arduino-in-pico-sdk
+*/
+
 #include <Arduino.h> 
 
 int main(void)
