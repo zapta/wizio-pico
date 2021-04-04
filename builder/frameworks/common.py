@@ -173,8 +173,8 @@ def add_flags(env):
             #"-Wl,--warn-section-align",            
             dev_nano(env)
         ],
-        LIBSOURCE_DIRS = [ join(env.framework_dir, "library") ],
-        LIBPATH        = [ join(env.framework_dir, "library"), join("$PROJECT_DIR", "lib") ],
+        LIBSOURCE_DIRS = [ join(env.framework_dir, "library"),  ], #join("$PROJECT_DIR", "lib")
+        LIBPATH        = [ join(env.framework_dir, "library"),  ], #join("$PROJECT_DIR", "lib")
         LIBS = ['m', 'gcc'],
         BUILDERS = dict(
             ElfToBin = Builder(
