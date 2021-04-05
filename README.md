@@ -18,8 +18,8 @@
 * Basic **[File System](https://github.com/Wiz-IO/wizio-pico/wiki/COMMON#file-system--vfs--virtual-file-system-)** ( RAM disk, FLASH disk, SD card )
 * [**READ WIKI**](https://github.com/Wiz-IO/wizio-pico/wiki/) 
 * [Framework code](https://github.com/Wiz-IO/framework-wizio-pico)
-* [Baremetal Examples](https://github.com/Wiz-IO/wizio-pico/tree/main/examples/baremetal)
-* [Arduino Examples](https://github.com/Wiz-IO/wizio-pico/tree/main/examples/arduino)
+* [Baremetal Examples](https://github.com/Wiz-IO/wizio-pico-examples/tree/main/baremetal)
+* [Arduino Examples](https://github.com/Wiz-IO/wizio-pico-examples/tree/main/arduino)
 
 **Notes**
 * Please [Re-Install](https://github.com/Wiz-IO/wizio-pico/blob/main/README.md#fast-uninstal--reinstal--do-this-and-install-again) the platform. The project is a work in progress and the platform is installed from here...
