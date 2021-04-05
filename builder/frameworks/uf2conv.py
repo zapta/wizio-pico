@@ -9,6 +9,7 @@ import argparse
 import time
 import serial
 from os.path import join
+from platform import system
 
 UF2_MAGIC_START0 = 0x0A324655 # "UF2\n"
 UF2_MAGIC_START1 = 0x9E5D5157 # Randomly selected
@@ -109,7 +110,7 @@ def convert_to_carray(file_content):
 
 def convert_to_uf2(file_content):
     global familyid
-    print("  FamilyID:", hex(familyid))
+    #print("  FamilyID:", hex(familyid))
     datapadding = b""
     while len(datapadding) < 512 - 256 - 32 - 4:
         datapadding += b"\x00\x00\x00\x00"
@@ -326,10 +327,10 @@ def dev_uploader(target, source, env):
             usb.close()
         except:
             pass
-        time.sleep(2.0) # Mac/Windows - AutoPlay
+        time.sleep(1.0) # Windows - AutoPlay
+        if 'Windows' not in system(): time.sleep(1.0)
+    print( "  Converting to UF2 ( 0x%x )" % (appstartaddr) )           
     with open( bin_name, mode='rb' ) as f: inpbuf = f.read() 
-    print("  Converting to UF2") 
-    print("  Start address: 0x%x" % (appstartaddr) )    
     outbuf = convert_to_uf2(inpbuf)   
     time.sleep(.1)
     write_file(uf2_name, outbuf) # write uf2 to build folder
@@ -341,7 +342,3 @@ def dev_uploader(target, source, env):
         print("Flashing %s (%s)" % (d, board_id(d)))       
         write_file(d +'/'+ env.get("PROGNAME")+'.uf2', outbuf) # write ufs to pico
     time.sleep(1.0) # usb-serial driver up
-
-
-                
-        
