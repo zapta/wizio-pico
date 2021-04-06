@@ -6,15 +6,14 @@ from os.path import join
 from SCons.Script import DefaultEnvironment, Builder
 from platformio.builder.tools.piolib import PlatformIOLibBuilder
 
-
 def add_ops(env):
     tab = '  *'
+    OBJ_DIR = join( "$BUILD_DIR", env.platform, env.sdk, "pico" )
+    LIB_DIR  = join( env.framework_dir, env.sdk, "pico" )
     if "PICO_DOUBLE_SUPPORT_ROM_V1" in env.get("CPPDEFINES"):
         print(tab, 'PICO_DOUBLE_SUPPORT_ROM_V1')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_double"),
-            join(env.framework_dir, env.sdk, "pico", "pico_double") ) )
-        env.Append( LINKFLAGS = [    
+        env.BuildSources( join(OBJ_DIR, "pico_double"), join(LIB_DIR, "pico_double") )
+        env.Append( LINKFLAGS = [
             "-Wl,-wrap,__aeabi_dadd",
             "-Wl,-wrap,__aeabi_ddiv",
             "-Wl,-wrap,__aeabi_dmul",
@@ -76,14 +75,12 @@ def add_ops(env):
             "-Wl,-wrap,expm1",
             "-Wl,-wrap,log1p",
             "-Wl,-wrap,fma",
-        ])             
+        ])
 
     if "PICO_FLOAT_SUPPORT_ROM_V1" in env.get("CPPDEFINES"):
         print(tab, 'PICO_FLOAT_SUPPORT_ROM_V1')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_float"),
-            join(env.framework_dir, env.sdk, "pico", "pico_float") ) )
-        env.Append( LINKFLAGS = [    
+        env.BuildSources( join(OBJ_DIR, "pico_float"), join(LIB_DIR, "pico_float") )
+        env.Append( LINKFLAGS = [
             "-Wl,-wrap,__aeabi_fadd",
             "-Wl,-wrap,__aeabi_fdiv",
             "-Wl,-wrap,__aeabi_fmul",
@@ -145,37 +142,31 @@ def add_ops(env):
             "-Wl,-wrap,expm1f",
             "-Wl,-wrap,log1pf",
             "-Wl,-wrap,fmaf",
-        ]) 
+        ])
 
     if "PICO_DIVIDER_HARDWARE" in env.get("CPPDEFINES"):
         print(tab, 'PICO_DIVIDER_HARDWARE')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_divider"),
-            join(env.framework_dir, env.sdk, "pico", "pico_divider") ) )          
-        env.Append( LINKFLAGS = [    
+        env.BuildSources( join(OBJ_DIR, "pico_divider"), join(LIB_DIR, "pico_divider") )
+        env.Append( LINKFLAGS = [
             "-Wl,-wrap,__aeabi_idiv",
             "-Wl,-wrap,__aeabi_idivmod",
             "-Wl,-wrap,__aeabi_ldivmod",
             "-Wl,-wrap,__aeabi_uidiv",
             "-Wl,-wrap,__aeabi_uidivmod",
             "-Wl,-wrap,__aeabi_uldivmod",
-        ])    
+        ])
 
-    if "PICO_INT64_OPS_PICO" in env.get("CPPDEFINES"):  
+    if "PICO_INT64_OPS_PICO" in env.get("CPPDEFINES"):
         print(tab, 'PICO_INT64_OPS_PICO')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_int64_ops"),
-            join(env.framework_dir, env.sdk, "pico", "pico_int64_ops") ) )                
-        env.Append( LINKFLAGS = [    
-            "-Wl,-wrap,wrapper_func __aeabi_lmul", 
-        ])   
+        env.BuildSources( join(OBJ_DIR, "pico_int64_ops"), join(LIB_DIR, "pico_int64_ops") )
+        env.Append( LINKFLAGS = [
+            "-Wl,-wrap,wrapper_func __aeabi_lmul",
+        ])
 
     if "PICO_BIT_OPS_PICO" in env.get("CPPDEFINES"):
         print(tab, 'PICO_BIT_OPS_PICO')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_bit_ops"),
-            join(env.framework_dir, env.sdk, "pico", "pico_bit_ops") ) )        
-        env.Append( LINKFLAGS = [    
+        env.BuildSources( join(OBJ_DIR, "pico_bit_ops"), join(LIB_DIR, "pico_bit_ops") )
+        env.Append( LINKFLAGS = [
             "-Wl,-wrap,__clzsi2",
             "-Wl,-wrap,__clzsi2",
             "-Wl,-wrap,__clzdi2",
@@ -187,13 +178,11 @@ def add_ops(env):
             #"-Wl,-wrap,__clzl",
             #"-Wl,-wrap,__clzsi2",
             #"-Wl,-wrap,__clzll",
-        ])        
+        ])
 
     if "PICO_MEM_OPS_PICO" in env.get("CPPDEFINES"):
         print(tab, 'PICO_MEM_OPS_PICO')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_mem_ops"),
-            join(env.framework_dir, env.sdk, "pico", "pico_mem_ops") ) )           
+        env.BuildSources( join(OBJ_DIR, "pico_mem_ops"), join(LIB_DIR, "pico_mem_ops") )
         env.Append( LINKFLAGS = [
             "-Wl,-wrap,memcpy",
             "-Wl,-wrap,memset",
@@ -205,14 +194,12 @@ def add_ops(env):
             "-Wl,-wrap,__aeabi_memset8",
         ])
 
-    if 'ARDUINO' == env.get("PROGNAME"): return 
-    ###########################################
+    if 'ARDUINO' == env.get("PROGNAME"):
+        return ########################################################################################
 
     if "PICO_PRINTF_PICO" in env.get("CPPDEFINES"):
         print(tab, 'PICO_PRINTF_PICO')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_printf"),
-            join(env.framework_dir, env.sdk, "pico", "pico_printf") ) )
+        env.BuildSources( join(OBJ_DIR, "pico_printf"), join(LIB_DIR, "pico_printf") )
         env.Append( LINKFLAGS = [
             "-Wl,-wrap,sprintf",
             "-Wl,-wrap,snprintf",
@@ -221,66 +208,75 @@ def add_ops(env):
             "-Wl,-wrap,printf",
             "-Wl,-wrap,vprintf",
             "-Wl,-wrap,puts",
-            "-Wl,-wrap,putchar",            
+            "-Wl,-wrap,putchar",
         ])
 
     if "PICO_STDIO_USB" in env.get("CPPDEFINES") or "PICO_STDIO_UART" in env.get("CPPDEFINES") or "PICO_STDIO_SEMIHOSTING" in env.get("CPPDEFINES"):
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio") ) )
+        env.BuildSources( join(OBJ_DIR, "pico_stdio"), join(LIB_DIR, "pico_stdio") )
 
     if "PICO_STDIO_USB" in env.get("CPPDEFINES"):
         print(tab, 'PICO_STDIO_USB')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_usb"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio_usb") ) )
+        env.BuildSources( join(OBJ_DIR, "pico_stdio_usb"), join(LIB_DIR, "pico_stdio_usb") )
 
     if "PICO_STDIO_UART" in env.get("CPPDEFINES"):
         print(tab, 'PICO_STDIO_UART')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_uart"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio_uart") ) )
+        env.BuildSources( join(OBJ_DIR, "pico_stdio_uart"), join(LIB_DIR, "pico_stdio_uart") )
 
     if "PICO_STDIO_SEMIHOSTING" in env.get("CPPDEFINES"):
         print(tab, 'PICO_STDIO_SEMIHOSTING')
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "pico", "pico_stdio_semihosting"),
-            join(env.framework_dir, env.sdk, "pico", "pico_stdio_semihosting") ) )        
+        env.BuildSources( join(OBJ_DIR, "pico_stdio_semihosting"), join(LIB_DIR, "pico_stdio_semihosting") )
 
-    env.Append( LINKFLAGS = [ 
-        "-Wl,-wrap,malloc", 
-        "-Wl,-wrap,calloc", 
-        "-Wl,-wrap,free",             
-    ])   
+    env.Append( LINKFLAGS = [
+        "-Wl,-wrap,malloc",
+        "-Wl,-wrap,calloc",
+        "-Wl,-wrap,free",
+    ])
 
+def add_tinyusb(env):
+    OBJ_DIR = join( "$BUILD_DIR", env.platform, env.sdk, "pico", "usb" )
+    USB_DIR = join( env.framework_dir, env.sdk, "lib", "tinyusb", "src" )
+    for define in env.get("CPPDEFINES"):
+        if "_USB" in define:
+            env.Append( CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO" ], CPPPATH = [ USB_DIR ]  )
+            env.BuildSources( OBJ_DIR, USB_DIR, src_filter = [ "+<*>", "-<host>", "-<device>", "-<class>" ] )
+            print('  * USB          : tinyusb')
+            break
+
+    if "PICO_STDIO_USB" in env.get("CPPDEFINES"):
+        env.BuildSources( OBJ_DIR, USB_DIR, src_filter = [ "-<*>", "+<device>", "+<class/cdc>" ]  )
+        return
+
+    # TODO SELECT HOST/DEVICE CLASS
+    if "PICO_USB" in env.get("CPPDEFINES"):
+        env.BuildSources( OBJ_DIR, USB_DIR,
+            src_filter = [ "-<*>", "+<device>", "+<class>" ]
+        )
 
 def add_sdk(env):
     add_ops(env)
-    if 'ARDUINO'!= env.get("PROGNAME"):
-        new_delete = "+" 
+    add_tinyusb(env)
+    if 'ARDUINO' != env.get("PROGNAME"):
+        new_delete = "+"
         pico_malloc = '+'
     else:
         new_delete = "-"
         pico_malloc = '-'
-        
-    env.libs.append( env.BuildLibrary( 
-        join("$BUILD_DIR", env.platform, env.sdk), 
-        join(env.framework_dir, env.sdk),
-        src_filter=[ "+<*>", 
-            "-<boot_stage2>",      
-            "-<pico/pico_bit_ops>",
-            "-<pico/pico_divider>",
-            "-<pico/pico_int64_ops>",
-            "-<pico/pico_printf>",  
-            "-<pico/pico_float>",              
-            "-<pico/pico_double>",  
-            "-<pico/pico_stdio>",             
-            "-<pico/pico_stdio_usb>",  
-            "-<pico/pico_stdio_uart>",              
-            "-<pico/pico_stdio_semihosting>", 
-            "-<pico/pico_mem_ops>",
-            "-<pico/pico_standard_link/crt0.S>", 
-            new_delete + "<pico/pico_standard_link/new_delete.cpp>",  
-            pico_malloc + "<pico/pico_malloc>",                     
-            "-<lib/tinyusb>",           
-        ] ) )  
+    filter = [ "+<*>",
+        "-<lib>",
+        "-<boot_stage2>",
+        "-<pico/pico_bit_ops>",
+        "-<pico/pico_divider>",
+        "-<pico/pico_int64_ops>",
+        "-<pico/pico_printf>",
+        "-<pico/pico_float>",
+        "-<pico/pico_double>",
+        "-<pico/pico_stdio>",
+        "-<pico/pico_stdio_usb>",
+        "-<pico/pico_stdio_uart>",
+        "-<pico/pico_stdio_semihosting>",
+        "-<pico/pico_mem_ops>",
+        "-<pico/pico_standard_link/crt0.S>",
+        new_delete + "<pico/pico_standard_link/new_delete.cpp>",
+        pico_malloc + "<pico/pico_malloc>"
+    ]
+    env.BuildSources( join("$BUILD_DIR", env.platform, env.sdk), join(env.framework_dir, env.sdk), src_filter = filter )
