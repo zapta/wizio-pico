@@ -10,6 +10,8 @@ from pico import *
 from uf2conv import dev_uploader
 from SCons.Script import DefaultEnvironment, Builder, ARGUMENTS
 
+bynary_type_info = []
+
 def do_copy(src, dst, name):
     if False == os.path.isfile( join(dst, name) ):
         copyfile( join(src, name), join(dst, name) )
@@ -30,11 +32,10 @@ def ini_file(env):
     txt = f.read()
     f.close()
     f = open(ini, "a+")
-    #if 'upload_port' not in txt: f.write("\n;upload_port = PICO_DRIVE:\\ \n")
-    if 'monitor_port'  not in txt: f.write(";monitor_port = SERIAL_PORT\n")        
-    if 'monitor_speed' not in txt: f.write("monitor_speed = 115200\n")   
-    if 'build_flags'   not in txt: f.write("\n;build_flags = \n")     
-    if 'lib_deps'      not in txt: f.write("\n;lib_deps = \n")                      
+    if 'monitor_port'  not in txt: f.write("\n;monitor_port = SERIAL_PORT\n")
+    if 'monitor_speed' not in txt: f.write(";monitor_speed = 115200\n")
+    if 'build_flags'   not in txt: f.write("\n;build_flags = \n")
+    if 'lib_deps'      not in txt: f.write("\n;lib_deps = \n")
     f.close()
 
 def dev_create_template(env):
@@ -46,7 +47,7 @@ def dev_create_template(env):
         do_copy(src, dst, "FreeRTOSConfig.h")
 
     if "VFS" in env.GetProjectOption("lib_deps", []) or "USE_VFS" in env.get("CPPDEFINES"):
-        do_copy(src, dst, "vfs_config.h")            
+        do_copy(src, dst, "vfs_config.h")
 
     if 'APPLICATION'== env.get("PROGNAME"):
         if "fatfs" in env.GetProjectOption("lib_deps", []):
@@ -57,20 +58,23 @@ def dev_create_template(env):
         if False == os.path.isfile( join(dst, "main.cpp") ):
             do_copy(src, dst, "main.c" )
 
-    if 'ARDUINO'== env.get("PROGNAME"):     
-        pass
-
     if 'BOOT-2'== env.get("PROGNAME"):
         dst = do_mkdir( env.subst("$PROJECT_DIR"), join("include", "pico") )
-        do_copy(src, dst, "config_autogen.h" )     
+        do_copy(src, dst, "config_autogen.h" )
 
-def dev_sdk(env):
+def dev_nano(env):
+    enable_nano = env.BoardConfig().get("build.nano", "enable") # no <sys/lock>
+    nano = []
+    if enable_nano == "enable":
+        nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]
+    if len(nano) > 0: print('  * SPECS        :', nano[0][7:])
+    else:             print('  * SPECS        : default')
+    return nano
+
+def dev_compiler(env, application_name = 'APPLICATION'):
     env.sdk = env.BoardConfig().get("build.sdk", "SDK") # get/set default SDK
     print()
     print( Fore.BLUE + "%s RASPBERRYPI PI PICO RP2040 ( PICO - %s )" % (env.platform.upper(), env.sdk.upper()) )
-    return env.sdk
-
-def dev_compiler(env, application_name = 'APPLICATION'):
     env.Replace(
         BUILD_DIR = env.subst("$BUILD_DIR").replace("\\", "/"),
         AR="arm-none-eabi-ar",
@@ -89,19 +93,7 @@ def dev_compiler(env, application_name = 'APPLICATION'):
         PROGSUFFIX=".elf",
         PROGNAME = application_name
     )
-    env.cortex = ["-march=armv6-m", "-mcpu=cortex-m0plus", "-mthumb"]
-
-def dev_nano(env):
-    enable_nano = env.BoardConfig().get("build.nano", "enable") # no <sys/lock>
-    nano = []
-    if enable_nano == "enable":
-        nano = ["-specs=nano.specs", "-u", "_printf_float", "-u", "_scanf_float" ]
-        pass  
-    if len(nano) > 0: print('  * SPECS        :', nano[0][7:])
-    else:             print('  * SPECS        : default')
-    return nano
-
-def add_flags(env):
+    cortex = ["-march=armv6-m", "-mcpu=cortex-m0plus", "-mthumb"]
     env.heap_size = env.BoardConfig().get("build.heap", "2048")
     optimization = env.BoardConfig().get("build.optimization", "-Os")
     stack_size = env.BoardConfig().get("build.stack", "2048")
@@ -111,75 +103,72 @@ def add_flags(env):
             pass
         else:
             print('  * STACK        :', stack_size)
-            print('  * HEAP         : maximum')            
+            print('  * HEAP         : maximum')
     else:
         print('  * STACK        :', stack_size)
-        print('  * HEAP         :', env.heap_size)        
+        print('  * HEAP         :', env.heap_size)
     env.Append(
-        ASFLAGS=[ env.cortex, "-x", "assembler-with-cpp" ],
+        ASFLAGS=[ cortex, "-x", "assembler-with-cpp" ],
         CPPPATH = [
             join("$PROJECT_DIR", "src"),
             join("$PROJECT_DIR", "lib"),
             join("$PROJECT_DIR", "include"),
-            join( env.framework_dir, "wizio", "pico"),    
-            join( env.framework_dir, "wizio", "newlib"),         
-            join( env.framework_dir, env.sdk, "lib", "tinyusb", "src" ),
+            join( env.framework_dir, "wizio", "pico"),
+            join( env.framework_dir, "wizio", "newlib"),
+            join( env.framework_dir, env.sdk, "include" ),
         ],
         CPPDEFINES = [
-            "NDEBUG",            
-            "PICO_ON_DEVICE=1", 
+            "NDEBUG",
+            "PICO_ON_DEVICE=1",
             "PICO_HEAP_SIZE="  + env.heap_size,
             "PICO_STACK_SIZE=" + stack_size,
         ],
         CCFLAGS = [
-            env.cortex,
+            cortex,
             optimization,
             "-fdata-sections",
             "-ffunction-sections",
             "-Wall",
             "-Wextra",
-            "-Wfatal-errors",            
+            "-Wfatal-errors",
             "-Wno-sign-compare",
             "-Wno-type-limits",
-            "-Wno-unused-parameter",            
+            "-Wno-unused-parameter",
             "-Wno-unused-function",
             "-Wno-unused-but-set-variable",
             "-Wno-unused-variable",
             "-Wno-unused-value",
-            "-Wno-strict-aliasing",  
-            "-Wno-maybe-uninitialized"  
-        ],        
+            "-Wno-strict-aliasing",
+            "-Wno-maybe-uninitialized"
+        ],
         CFLAGS = [
-            env.cortex,
-            "-Wno-discarded-qualifiers"
+            cortex,
+            "-Wno-discarded-qualifiers",
+            "-Wno-ignored-qualifiers"
         ],
         CXXFLAGS = [
             "-fno-rtti",
             "-fno-exceptions",
-            "-fno-threadsafe-statics",            
+            "-fno-threadsafe-statics",
             "-fno-non-call-exceptions",
             "-fno-use-cxa-atexit",
         ],
         LINKFLAGS = [
-            env.cortex,
+            cortex,
             optimization,
             "-nostartfiles",
             "-Xlinker", "--gc-sections",
             "-Wl,--gc-sections",
             "--entry=_entry_point",
-            #"-Wl,--cref", 
-            #"-Wl,--check-sections",
-            #"-Wl,--unresolved-symbols=report-all",
-            #"-Wl,--warn-section-align",            
             dev_nano(env)
         ],
-        LIBSOURCE_DIRS = [ join(env.framework_dir, "library"),  ], #join("$PROJECT_DIR", "lib")
-        LIBPATH        = [ join(env.framework_dir, "library"),  ], #join("$PROJECT_DIR", "lib")
-        LIBS = ['m', 'gcc'],
+        LIBSOURCE_DIRS = [ join(env.framework_dir, "library"),  ],
+        LIBPATH        = [ join(env.framework_dir, "library"), join("$PROJECT_DIR", "lib") ],
+        LIBS           = ['m', 'gcc'],
         BUILDERS = dict(
             ElfToBin = Builder(
                 action = env.VerboseAction(" ".join([
-                    "$OBJCOPY", "-O",  "binary", 
+                    "$OBJCOPY", "-O",  "binary",
                     "$SOURCES", "$TARGET",
                 ]), "Building $TARGET"),
                 suffix = ".bin"
@@ -188,72 +177,58 @@ def add_flags(env):
         UPLOADCMD = dev_uploader
     )
 
-def add_boot(env):
-    boot = env.BoardConfig().get("build.boot", "w25q080") # get boot
-    print('  * BOOT         :', boot)
-    env.libs.append( env.BuildLibrary(
-        join("$BUILD_DIR", env.platform, "wizio", "boot"),
-        join(env.framework_dir, "boot", boot) ) )
-
-def add_usb_library(env):
-    if "PICO_STDIO_USB" in env.get("CPPDEFINES") or "PICO_USB" in env.get("CPPDEFINES"):
-        print('  * USB          : tinyusb')
-        env.Append( CPPDEFINES = [ "CFG_TUSB_MCU=OPT_MCU_RP2040", "CFG_TUSB_OS=OPT_OS_PICO" ], )      
-        env.libs.append( env.BuildLibrary(
-            join("$BUILD_DIR", env.platform, env.sdk, "usb", "tinyusb"),
-            join(env.framework_dir, env.sdk, "lib", "tinyusb") 
-        ))    
-
-def add_freertos(env):
+def add_libraries(env): # is PIO LIB-s
     if "freertos" in env.GetProjectOption("lib_deps", []) or "USE_FREERTOS" in env.get("CPPDEFINES"):
-        env.Append(  CPPPATH    = [ join(join(env.framework_dir, "library", "freertos"), "include") ]  )  
+        env.Append(  CPPPATH = [ join(join(env.framework_dir, "library", "freertos"), "include") ]  )
         print('  * RTOS         : FreeRTOS')
         if "USE_FREERTOS" not in env.get("CPPDEFINES"):
-            env.Append(  CPPDEFINES = [ "USE_FREERTOS"] )   
+            env.Append(  CPPDEFINES = [ "USE_FREERTOS"] )
+
+    if "cmsis-dap" in env.GetProjectOption("lib_deps", []):
+        env.Append( CPPDEFINES = [ "DAP" ], )
+
+def add_boot(env):
+    boot = env.BoardConfig().get("build.boot", "w25q080") # get boot
+    if "w25q080" != boot and "$PROJECT_DIR" in boot:
+        boot = boot.replace('$PROJECT_DIR', env["PROJECT_DIR"]).replace("\\", "/")
+    bynary_type_info.append(boot)
+    env.BuildSources( join("$BUILD_DIR", env.platform, "wizio", "boot"), join(env.framework_dir, "boot", boot) )
 
 def add_bynary_type(env):
-    add_boot(env)    
-    bynary_type = env.BoardConfig().get("build.bynary_type", 'default')    
-    env.address = env.BoardConfig().get("build.address", "empty") # get uf2 start address
-    linker = env.BoardConfig().get("build.linker", "empty") # get linker srcipt 
-    if "empty" != linker: 
-        if "$PROJECT_DIR" in linker: # get linker srcipt from project or sdk
-            linker = linker.replace('$PROJECT_DIR', env["PROJECT_DIR"]).replace("\\", "/")
+    add_boot(env)
+    bynary_type = env.BoardConfig().get("build.bynary_type", 'default')
+    env.address = env.BoardConfig().get("build.address", "empty")
+    linker      = env.BoardConfig().get("build.linker", "empty")
+    if "empty" != linker and "$PROJECT_DIR" in linker:
+        linker = linker.replace('$PROJECT_DIR', env["PROJECT_DIR"]).replace("\\", "/")
     if 'copy_to_ram' == bynary_type:
         if "empty" == env.address: env.address = '0x10000000'
         if "empty" == linker: linker = 'memmap_copy_to_ram.ld'
-        env.Append(
-            LDSCRIPT_PATH = join(env.framework_dir, env.sdk, "pico", "pico_standard_link", linker),
-            CPPDEFINES = ['PICO_COPY_TO_RAM']
-        )
+        env.Append(  CPPDEFINES = ['PICO_COPY_TO_RAM'] )
     elif 'no_flash' == bynary_type:
         if "empty" == env.address: env.address = '0x20000000'
         if "empty" == linker: linker = 'memmap_no_flash.ld'
-        env.Append(
-            LDSCRIPT_PATH = join(env.framework_dir, env.sdk, "pico", "pico_standard_link", linker),
-            CPPDEFINES = ['PICO_NO_FLASH']
-        )
-        pass
-    #elif 'blocked_ram' == bynary_type: # ?????????
+        env.Append(  CPPDEFINES = ['PICO_NO_FLASH'] )
+    elif 'blocked_ram' == bynary_type:
+        print('TODO: blocked_ram is not supported yet')
+        exit(0)
+        if "empty" == env.address: env.address = ''
+        if "empty" == linker: linker = ''
+        env.Append( CPPDEFINES = ['PICO_USE_BLOCKED_RAM'] )
     else: #default
         if "empty" == env.address: env.address = '0x10000000'
         if "empty" == linker: linker = 'memmap_default.ld'
-        env.Append(
-            LDSCRIPT_PATH = join(env.framework_dir, env.sdk, "pico", "pico_standard_link", linker),
-        )
-    print('  * BINARY TYPE  :' , bynary_type, '[', linker, ' ', env.address, ']'  )
-    add_usb_library(env)
-    add_freertos(env)
+    env.Append( LDSCRIPT_PATH = join(env.framework_dir, env.sdk, "pico", "pico_standard_link", linker) )
+    bynary_type_info.append(linker)
+    bynary_type_info.append(env.address)
+    print('  * BINARY TYPE  :' , bynary_type, bynary_type_info  )
+    add_libraries(env)
 
 def dev_finalize(env):
-    if "cmsis-dap" in env.GetProjectOption("lib_deps", []):
-        env.Append( CPPDEFINES = [ "DAP" ], )      
-# WIZIO    
-    env.libs.append( env.BuildLibrary( 
-        join("$BUILD_DIR", env.platform, "wizio"),   
-        join(env.framework_dir, "wizio") ) )          
+# WIZIO
+    env.BuildSources( join("$BUILD_DIR", env.platform, "wizio"), join(env.framework_dir, "wizio") )
+# SDK
     add_bynary_type(env)
-# SDK 
-    add_sdk(env)        
-    env.Append(LIBS = env.libs)     
-    print() 
+    add_sdk(env)
+    env.Append(LIBS = env.libs)
+    print()

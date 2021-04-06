@@ -7,34 +7,27 @@ from SCons.Script import DefaultEnvironment, Builder
 from common import *
 
 def dev_init(env, platform):
-    env.platform = platform    
-    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico")    
-    env.libs = libs = []     
-    sdk = dev_sdk(env)  
+    env.platform = platform
+    env.framework_dir = env.PioPlatform().get_package_dir("framework-wizio-pico")
+    env.libs = []
     dev_compiler(env, 'ARDUINO')
     dev_create_template(env)
-    add_flags(env) 
     core = env.BoardConfig().get("build.core")
-    variant= env.BoardConfig().get("build.variant")  
+    variant= env.BoardConfig().get("build.variant")
+    PLATFORM_DIR = join( env.framework_dir, platform )
     env.Append(
         CPPDEFINES = [ "ARDUINO=200" ],
-        CPPPATH = [   
-            join(env.framework_dir, sdk, "include"),     # SDK      
-            join(env.framework_dir, platform, platform), # ARDUINO
-            join(env.framework_dir, platform, "cores", core),            
-            join(env.framework_dir, platform, "variants", variant), 
+        CPPPATH = [
+            join(PLATFORM_DIR, platform),
+            join(PLATFORM_DIR, "cores", core),
+            join(PLATFORM_DIR, "variants", variant),
         ],
-        LIBSOURCE_DIRS = [ join(env.framework_dir, platform, "libraries", core) ], 
-        LIBPATH        = [ join(env.framework_dir, platform, "libraries", core) ],         
+        LIBSOURCE_DIRS = [ join(PLATFORM_DIR, "libraries", core) ],
+        LIBPATH        = [ join(PLATFORM_DIR, "libraries", core) ],
     )
-    libs.append( env.BuildLibrary( 
-        join( "$BUILD_DIR", platform, "arduino" ),   
-        join( env.framework_dir, platform, platform ) ) )     
-    libs.append( env.BuildLibrary( 
-        join( "$BUILD_DIR", platform, "arduino", "cores", core ),         
-        join( env.framework_dir, platform, "cores", core ) ) )    
-    libs.append( env.BuildLibrary( 
-        join( "$BUILD_DIR", platform, "arduino", "variants", variant ),      
-        join( env.framework_dir, platform, "variants", variant ) ) )  
+    OBJ_DIR = join( "$BUILD_DIR", platform, "arduino" )
+    env.BuildSources( join( OBJ_DIR, "arduino" ), join( PLATFORM_DIR, platform )  )
+    env.BuildSources( join( OBJ_DIR, "core" ),    join( PLATFORM_DIR, "cores", core ) )
+    env.BuildSources( join( OBJ_DIR, "variant" ), join( PLATFORM_DIR, "variants", variant )  )
     dev_finalize(env)
 
