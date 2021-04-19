@@ -19,6 +19,7 @@
 * [Framework code](https://github.com/Wiz-IO/framework-wizio-pico)
 * [Baremetal Examples](https://github.com/Wiz-IO/wizio-pico-examples/tree/main/baremetal)
 * [Arduino Examples](https://github.com/Wiz-IO/wizio-pico-examples/tree/main/arduino)
+* [Video demo - Arduino - TFT ST7789](https://www.youtube.com/watch?v=x8Z4btIwf7M)
 
 **Notes**
 * Please [Re-Install](https://github.com/Wiz-IO/wizio-pico/blob/main/README.md#fast-uninstal--reinstal--do-this-and-install-again) the platform. The project is a work in progress and the platform is installed from here...
