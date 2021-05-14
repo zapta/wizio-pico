@@ -75,6 +75,8 @@ IF **PICO_STDIO_USB** is used, the Uploader will try ro reset Pico to boot-uf2 m
 * [Ivan Kravets ( PlatformIO )](https://platformio.org/)
 * [Comet Electronics](https://www.comet.bg/en/)
 
+![pico](https://raw.githubusercontent.com/Wiz-IO/LIB/master/images/ILI9341.jpg)
+
 ***
 
 >If you want to help / support:   
