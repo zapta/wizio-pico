@@ -336,8 +336,7 @@ def dev_uploader(target, source, env):
     write_file(uf2_name, outbuf) # write uf2 to build folder
     drives = get_drives()
     if len(drives) == 0:
-        print("  WARNING No Pico drive to deploy.")
-        return
+        raise RuntimeError("Pico USB drive not found.")
     for d in drives:
         print("Flashing %s (%s)" % (d, board_id(d)))
         write_file(d +'/'+ env.get("PROGNAME")+'.uf2', outbuf) # write ufs to pico
