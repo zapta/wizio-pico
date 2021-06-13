@@ -35,11 +35,15 @@ _Note: be sure [**git**](https://git-scm.com/downloads) is installed_
 * INSTALL
 
 ## Uninstall ( fast ) ... Re-Install ( do this and Install again )
-* goto C:\Users\USER_NAME\.platformio\ **platforms & packages**
-* delete folder **wizio-pico** ( builders )
-* delete folder **framework-wizio-pico** ( sources )
-* delete folder **tool-wizio-pico** ( tools, picoasm )
-* _delete folder toolchain-gccarmnoneeabi (compiler, **may not be deleted** )_
+* In directory C:\Users\USER_NAME\.platformio\\**platforms**
+  * delete folder **wizio-pico** ( builders )
+* In directory C:\Users\USER_NAME\.platformio\\**packages**
+  * delete folder **framework-wizio-pico** ( sources )
+  * delete folder **toolchain-gccarmnoneeabi** (compiler, **may not be 
+deleted** )
+  * delete folder **tool-wizio-pico** ( tools, picoasm )
+
+
 
 ![pico](https://raw.githubusercontent.com/Wiz-IO/LIB/master/pico/pio-pico.jpg)
 ***
